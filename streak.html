@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Streak Tracker (Testing Mode)</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+    
+    <style>
+        :root {
+            --bg-color: #191919; /* Matches Notion Dark Mode */
+            --text-color: #ffffff;
+            --accent-color: #cd7f32; /* Default Bronze */
+            --glow-color: rgba(205, 127, 50, 0.3);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .card {
+            background: #202020;
+            border: 1px solid #2e2e2e;
+            border-radius: 16px;
+            padding: 25px 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px var(--glow-color);
+            transition: all 0.5s ease;
+            width: 220px;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8c8c8c;
+        }
+
+        .count {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: var(--accent-color);
+            text-shadow: 0 0 20px var(--glow-color);
+            transition: all 0.5s ease;
+        }
+
+        .tier {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #121212;
+            border: none;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--glow-color);
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+
+        .msg {
+            font-size: 0.75rem;
+            color: #ff9900; /* Colored text to highlight testing mode */
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        #confetti {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <div class="card" id="main-card">
+        <h3>Streak</h3>
+        <div class="count" id="counter">0</div>
+        <div class="tier" id="tier-label">Novice</div>
+        <button id="checkin-btn" onclick="checkIn()">Complete Today</button>
+        <div class="msg" id="status-msg">Testing Mode: Multi-click active!</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        let streak = parseInt(localStorage.getItem('habit_streak')) || 0;
+        let lastCheckIn = localStorage.getItem('last_check_in') || null;
+
+        const counterEl = document.getElementById('counter');
+        const tierEl = document.getElementById('tier-label');
+        const buttonEl = document.getElementById('checkin-btn');
+        const statusEl = document.getElementById('status-msg');
+        const root = document.documentElement;
+
+        function checkStreakValidity() {
+            if (!lastCheckIn) return;
+
+            const today = new Date();
+            const lastDate = new Date(lastCheckIn);
+
+            today.setHours(0,0,0,0);
+            lastDate.setHours(0,0,0,0);
+
+            const diffTime = today - lastDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 1) {
+                streak = 0;
+                localStorage.setItem('habit_streak', 0);
+            }
+            // LOCK RULE REMOVED: Deleted the block that disables the button if checked in today.
+        }
+
+        function updateVisuals() {
+            counterEl.innerText = streak;
+
+            // Milestones targets
+            if (streak >= 30) {
+                root.style.setProperty('--accent-color', '#00f3ff'); // Cyan Neon
+                root.style.setProperty('--glow-color', 'rgba(0, 243, 255, 0.4)');
+                tierEl.innerText = "🔥 Unstoppable 🔥";
+            } else if (streak >= 15) {
+                root.style.setProperty('--accent-color', '#ffd700'); // Gold
+                root.style.setProperty('--glow-color', 'rgba(255, 215, 0, 0.3)');
+                tierEl.innerText = "Elite";
+            } else if (streak >= 5) {
+                root.style.setProperty('--accent-color', '#c0c0c0'); // Silver
+                root.style.setProperty('--glow-color', 'rgba(192, 192, 192, 0.3)');
+                tierEl.innerText = "Consistent";
+            } else {
+                root.style.setProperty('--accent-color', '#cd7f32'); // Bronze
+                root.style.setProperty('--glow-color', 'rgba(205, 127, 50, 0.3)');
+                tierEl.innerText = "Novice";
+            }
+        }
+
+        function checkIn() {
+            streak++;
+            lastCheckIn = new Date().toISOString();
+
+            localStorage.setItem('habit_streak', streak);
+            localStorage.setItem('last_check_in', lastCheckIn);
+
+            updateVisuals();
+            
+            // LOCK RULE REMOVED: Button no longer disables itself on click
+
+            // Explode confetti matching the current tier color
+            confetti({
+                particleCount: 80,
+                spread: 50,
+                origin: { y: 0.75 },
+                colors: [getComputedStyle(root).getPropertyValue('--accent-color').trim(), '#ffffff']
+            });
+        }
+
+        // Run updates on launch
+        checkStreakValidity();
+        updateVisuals();
+    </script>
+</body>
+</html>
