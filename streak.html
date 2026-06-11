@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Streak Tracker (Light Mode - Testing)</title>
+    <title>Notion Streak Tracker (Custom Tiers - Testing)</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
     
     <style>
         :root {
-            --bg-color: #ffffff; /* Matches Notion Light Mode background */
-            --card-bg: #fbfbfa;   /* Notion's subtle secondary block color */
+            --bg-color: #ffffff; /* Notion Light Mode */
+            --card-bg: #fbfbfa;   
             --border-color: #e9e9e6;
-            --text-main: #37352f; /* Notion's default dark text */
-            --text-sub: #787774;  /* Notion's default muted text */
-            --accent-color: #bf6a1a; /* Adjusted darker Bronze for contrast on white */
-            --glow-color: rgba(191, 106, 26, 0.15);
+            --text-main: #37352f; 
+            --text-sub: #787774;  
+            --accent-color: #6c757d; 
+            --glow-color: rgba(108, 117, 125, 0.15);
         }
 
         body {
@@ -37,7 +37,7 @@
             text-align: center;
             box-shadow: 0 8px 24px var(--glow-color);
             transition: all 0.5s ease;
-            width: 220px;
+            width: 230px;
         }
 
         h3 {
@@ -58,12 +58,13 @@
         }
 
         .tier {
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             margin-bottom: 20px;
             color: var(--accent-color);
             text-transform: uppercase;
+            transition: all 0.5s ease;
         }
 
         button {
@@ -82,12 +83,12 @@
 
         button:hover {
             transform: translateY(-2px);
-            filter: brightness(0.9); /* Darkens slightly on hover for light mode feel */
+            filter: brightness(0.9); 
         }
 
         .msg {
             font-size: 0.75rem;
-            color: #d97300; /* Distinct warning color for test mode text */
+            color: #d97300; 
             margin-top: 10px;
             font-weight: 600;
         }
@@ -107,9 +108,9 @@
     <div class="card" id="main-card">
         <h3>Streak</h3>
         <div class="count" id="counter">0</div>
-        <div class="tier" id="tier-label">Novice</div>
+        <div class="tier" id="tier-label">🌱 Beginner</div>
         <button id="checkin-btn" onclick="checkIn()">Complete Today</button>
-        <div class="msg" id="status-msg">Testing Mode: Multi-click active!</div>
+        <div class="msg" id="status-msg">Testing Mode: Click away!</div>
     </div>
 
     <!-- Canvas Confetti Library Script -->
@@ -137,6 +138,8 @@
             const diffTime = today - lastDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
+            // Automatically resets if you take a break during production,
+            // but left open right now for seamless manual multi-clicking testing.
             if (diffDays > 1) {
                 streak = 0;
                 localStorage.setItem('habit_streak', 0);
@@ -146,23 +149,47 @@
         function updateVisuals() {
             counterEl.innerText = streak;
 
-            // Milestones targets with high-contrast colors for light backgrounds
-            if (streak >= 30) {
-                root.style.setProperty('--accent-color', '#0070f3'); // Premium Royal Blue
-                root.style.setProperty('--glow-color', 'rgba(0, 112, 243, 0.15)');
-                tierEl.innerText = "🔥 Unstoppable 🔥";
-            } else if (streak >= 15) {
-                root.style.setProperty('--accent-color', '#b48c00'); // Deep Gold/Amber
-                root.style.setProperty('--glow-color', 'rgba(180, 140, 0, 0.15)');
-                tierEl.innerText = "Elite";
-            } else if (streak >= 5) {
-                root.style.setProperty('--accent-color', '#5a626a'); // Slate/Silver
-                root.style.setProperty('--glow-color', 'rgba(90, 98, 106, 0.15)');
-                tierEl.innerText = "Consistent";
+            /* RAPID TESTING MILESTONES SCALE */
+            if (streak >= 14) {
+                // 8. Destroyer of World -> Deep Cosmic Crimson Void
+                root.style.setProperty('--accent-color', '#800020'); 
+                root.style.setProperty('--glow-color', 'rgba(128, 0, 32, 0.2)');
+                tierEl.innerText = "🌌 Destroyer of World 🔥";
+            } else if (streak >= 12) {
+                // 7. Immortal King -> Royal Purple
+                root.style.setProperty('--accent-color', '#560bad'); 
+                root.style.setProperty('--glow-color', 'rgba(86, 11, 173, 0.15)');
+                tierEl.innerText = "👑 Immortal King";
+            } else if (streak >= 10) {
+                // 6. Berserker -> Guts Dragon Slayer Vibe
+                root.style.setProperty('--accent-color', '#d90429'); 
+                root.style.setProperty('--glow-color', 'rgba(217, 4, 41, 0.2)');
+                tierEl.innerText = "🗡️💥 Berserker";
+            } else if (streak >= 8) {
+                // 5. Super Saiyan level -> Ki Aura Glow
+                root.style.setProperty('--accent-color', '#b58600'); 
+                root.style.setProperty('--glow-color', 'rgba(181, 134, 0, 0.25)');
+                tierEl.innerText = "🌀⚡ Super Saiyan level";
+            } else if (streak >= 6) {
+                // 4. Champion -> Emerald Green Victory
+                root.style.setProperty('--accent-color', '#137547'); 
+                root.style.setProperty('--glow-color', 'rgba(19, 117, 71, 0.15)');
+                tierEl.innerText = "🏆 Champion";
+            } else if (streak >= 4) {
+                // 3. Challenger -> Deep Ocean Steel Blue
+                root.style.setProperty('--accent-color', '#005f73'); 
+                root.style.setProperty('--glow-color', 'rgba(0, 95, 115, 0.15)');
+                tierEl.innerText = "⚔️ Challenger";
+            } else if (streak >= 2) {
+                // 2. Explorer -> Adventurous Burnt Orange
+                root.style.setProperty('--accent-color', '#ca6702'); 
+                root.style.setProperty('--glow-color', 'rgba(202, 103, 2, 0.15)');
+                tierEl.innerText = "🗺️ Explorer";
             } else {
-                root.style.setProperty('--accent-color', '#bf6a1a'); // Deep Bronze
-                root.style.setProperty('--glow-color', 'rgba(191, 106, 26, 0.15)');
-                tierEl.innerText = "Novice";
+                // 1. Beginner -> Muted Slate Pebble
+                root.style.setProperty('--accent-color', '#6c757d'); 
+                root.style.setProperty('--glow-color', 'rgba(108, 117, 125, 0.1)');
+                tierEl.innerText = "🌱 Beginner";
             }
         }
 
@@ -175,7 +202,7 @@
 
             updateVisuals();
 
-            // Explode confetti matching the current tier color
+            // Fire confetti styled after your current tier power color!
             confetti({
                 particleCount: 80,
                 spread: 50,
