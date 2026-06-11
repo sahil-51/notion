@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Streak Tracker (Testing Mode)</title>
+    <title>Notion Streak Tracker (Light Mode - Testing)</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
     
     <style>
         :root {
-            --bg-color: #191919; /* Matches Notion Dark Mode */
-            --text-color: #ffffff;
-            --accent-color: #cd7f32; /* Default Bronze */
-            --glow-color: rgba(205, 127, 50, 0.3);
+            --bg-color: #ffffff; /* Matches Notion Light Mode background */
+            --card-bg: #fbfbfa;   /* Notion's subtle secondary block color */
+            --border-color: #e9e9e6;
+            --text-main: #37352f; /* Notion's default dark text */
+            --text-sub: #787774;  /* Notion's default muted text */
+            --accent-color: #bf6a1a; /* Adjusted darker Bronze for contrast on white */
+            --glow-color: rgba(191, 106, 26, 0.15);
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
@@ -27,12 +30,12 @@
         }
 
         .card {
-            background: #202020;
-            border: 1px solid #2e2e2e;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 25px 40px;
             text-align: center;
-            box-shadow: 0 8px 32px var(--glow-color);
+            box-shadow: 0 8px 24px var(--glow-color);
             transition: all 0.5s ease;
             width: 220px;
         }
@@ -42,7 +45,7 @@
             font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #8c8c8c;
+            color: var(--text-sub);
         }
 
         .count {
@@ -50,7 +53,7 @@
             font-weight: 800;
             margin: 10px 0;
             color: var(--accent-color);
-            text-shadow: 0 0 20px var(--glow-color);
+            text-shadow: 0 2px 10px var(--glow-color);
             transition: all 0.5s ease;
         }
 
@@ -65,7 +68,7 @@
 
         button {
             background-color: var(--accent-color);
-            color: #121212;
+            color: #ffffff;
             border: none;
             padding: 12px 24px;
             font-size: 0.95rem;
@@ -79,12 +82,12 @@
 
         button:hover {
             transform: translateY(-2px);
-            filter: brightness(1.2);
+            filter: brightness(0.9); /* Darkens slightly on hover for light mode feel */
         }
 
         .msg {
             font-size: 0.75rem;
-            color: #ff9900; /* Colored text to highlight testing mode */
+            color: #d97300; /* Distinct warning color for test mode text */
             margin-top: 10px;
             font-weight: 600;
         }
@@ -109,6 +112,7 @@
         <div class="msg" id="status-msg">Testing Mode: Multi-click active!</div>
     </div>
 
+    <!-- Canvas Confetti Library Script -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
@@ -137,28 +141,27 @@
                 streak = 0;
                 localStorage.setItem('habit_streak', 0);
             }
-            // LOCK RULE REMOVED: Deleted the block that disables the button if checked in today.
         }
 
         function updateVisuals() {
             counterEl.innerText = streak;
 
-            // Milestones targets
+            // Milestones targets with high-contrast colors for light backgrounds
             if (streak >= 30) {
-                root.style.setProperty('--accent-color', '#00f3ff'); // Cyan Neon
-                root.style.setProperty('--glow-color', 'rgba(0, 243, 255, 0.4)');
+                root.style.setProperty('--accent-color', '#0070f3'); // Premium Royal Blue
+                root.style.setProperty('--glow-color', 'rgba(0, 112, 243, 0.15)');
                 tierEl.innerText = "🔥 Unstoppable 🔥";
             } else if (streak >= 15) {
-                root.style.setProperty('--accent-color', '#ffd700'); // Gold
-                root.style.setProperty('--glow-color', 'rgba(255, 215, 0, 0.3)');
+                root.style.setProperty('--accent-color', '#b48c00'); // Deep Gold/Amber
+                root.style.setProperty('--glow-color', 'rgba(180, 140, 0, 0.15)');
                 tierEl.innerText = "Elite";
             } else if (streak >= 5) {
-                root.style.setProperty('--accent-color', '#c0c0c0'); // Silver
-                root.style.setProperty('--glow-color', 'rgba(192, 192, 192, 0.3)');
+                root.style.setProperty('--accent-color', '#5a626a'); // Slate/Silver
+                root.style.setProperty('--glow-color', 'rgba(90, 98, 106, 0.15)');
                 tierEl.innerText = "Consistent";
             } else {
-                root.style.setProperty('--accent-color', '#cd7f32'); // Bronze
-                root.style.setProperty('--glow-color', 'rgba(205, 127, 50, 0.3)');
+                root.style.setProperty('--accent-color', '#bf6a1a'); // Deep Bronze
+                root.style.setProperty('--glow-color', 'rgba(191, 106, 26, 0.15)');
                 tierEl.innerText = "Novice";
             }
         }
@@ -171,19 +174,16 @@
             localStorage.setItem('last_check_in', lastCheckIn);
 
             updateVisuals();
-            
-            // LOCK RULE REMOVED: Button no longer disables itself on click
 
             // Explode confetti matching the current tier color
             confetti({
                 particleCount: 80,
                 spread: 50,
                 origin: { y: 0.75 },
-                colors: [getComputedStyle(root).getPropertyValue('--accent-color').trim(), '#ffffff']
+                colors: [getComputedStyle(root).getPropertyValue('--accent-color').trim(), '#37352f']
             });
         }
 
-        // Run updates on launch
         checkStreakValidity();
         updateVisuals();
     </script>
