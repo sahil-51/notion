@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Anime Streak Tracker (Text Effects)</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+    <title>Notion Anime Streak Tracker (With High Score)</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght=400;600;800&display=swap">
     
     <style>
         :root {
@@ -33,11 +33,26 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 30px 45px;
+            padding: 25px 45px;
             text-align: center;
             box-shadow: 0 10px 30px var(--glow-color);
             transition: all 0.5s ease;
             width: 230px;
+            position: relative;
+        }
+
+        /* Highest Streak Badge Styling */
+        .highest-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-sub);
+            background-color: #e9e9e6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
         }
 
         h3 {
@@ -48,7 +63,6 @@
             color: var(--text-sub);
         }
 
-        /* Base styling for the core counter number */
         .count {
             font-size: 5rem;
             font-weight: 800;
@@ -102,40 +116,26 @@
         /* ========================================================
            DYNAMIC TEXT EFFECTS LOCK ON NUMBERS
         ======================================================== */
-
-        /* 1. Super Saiyan Flame Text Shadow Effect */
         .count-saiyan {
             animation: textFlame 1.2s infinite alternate ease-in-out;
         }
 
         @keyframes textFlame {
-            0% {
-                text-shadow: 0 0 10px #ffcc00, 0 -2px 15px #ff8800, 0 -4px 25px #ff3300;
-            }
-            100% {
-                text-shadow: 0 0 14px #ffcc00, 0 -4px 22px #ffaa00, 0 -8px 35px #ff5500;
-                transform: scale(1.03);
-            }
+            0% { text-shadow: 0 0 10px #ffcc00, 0 -2px 15px #ff8800, 0 -4px 25px #ff3300; }
+            100% { text-shadow: 0 0 14px #ffcc00, 0 -4px 22px #ffaa00, 0 -8px 35px #ff5500; transform: scale(1.03); }
         }
 
-        /* 2. Immortal King Royal Shimmer Text Effect */
         .count-royal {
             animation: royalShimmer 2s infinite ease-in-out;
         }
 
         @keyframes royalShimmer {
-            0%, 100% {
-                text-shadow: 0 0 8px #e0aaff, 0 0 20px #7b2cbf;
-            }
-            50% {
-                text-shadow: 0 0 15px #ffffff, 0 0 30px #9d4edd;
-                transform: translateY(-2px);
-            }
+            0%, 100% { text-shadow: 0 0 8px #e0aaff, 0 0 20px #7b2cbf; }
+            50% { text-shadow: 0 0 15px #ffffff, 0 0 30px #9d4edd; transform: translateY(-2px); }
         }
 
-        /* 3. Freeze Shivering Text Effect */
         .count-frozen {
-            color: #64b5f6 !important; /* Frost Blue number */
+            color: #64b5f6 !important; 
             text-shadow: 0 4px 10px rgba(100, 181, 246, 0.6), 0 0 20px #e3f2fd;
             animation: freezeShiver 0.5s ease-in-out;
         }
@@ -152,6 +152,9 @@
     <canvas id="confetti"></canvas>
 
     <div class="card" id="main-card">
+        <!-- New Highest Streak Display Element -->
+        <div class="highest-badge">👑 Max Streak: <span id="highest-counter">0</span></div>
+        
         <h3>Streak</h3>
         <div class="count" id="counter">0</div>
         <div class="tier" id="tier-label">🌱 Beginner</div>
@@ -163,9 +166,11 @@
 
     <script>
         let streak = parseInt(localStorage.getItem('habit_streak')) || 0;
+        let highestStreak = parseInt(localStorage.getItem('highest_streak')) || 0;
         let lastCheckIn = localStorage.getItem('last_check_in') || null;
 
         const counterEl = document.getElementById('counter');
+        const highestEl = document.getElementById('highest-counter');
         const tierEl = document.getElementById('tier-label');
         const buttonEl = document.getElementById('checkin-btn');
         const statusEl = document.getElementById('status-msg');
@@ -191,19 +196,20 @@
         }
 
         function triggerFreezeReset() {
-            counterEl.className = "count count-frozen"; // Locks freeze text-shadow
+            counterEl.className = "count count-frozen"; 
             const originalText = statusEl.innerText;
             statusEl.innerText = "🥶 Broken timeline! Numbers freezing...";
             
             setTimeout(() => {
-                updateVisuals(); // Restores normal text properties after 1.5s
+                updateVisuals(); 
                 statusEl.innerText = originalText;
             }, 1500);
         }
 
         function updateVisuals() {
             counterEl.innerText = streak;
-            counterEl.className = "count"; // Reset text animation strings completely
+            highestEl.innerText = highestStreak; // Render the updated all-time high score
+            counterEl.className = "count"; 
 
             /* RAPID TESTING MILESTONES SCALE */
             if (streak >= 14) {
@@ -213,7 +219,7 @@
             } else if (streak >= 12) {
                 root.style.setProperty('--accent-color', '#411d73'); 
                 tierEl.innerText = "👑 Immortal King";
-                counterEl.classList.add('count-royal'); // Triggers royal text shimmer style
+                counterEl.classList.add('count-royal'); 
             } else if (streak >= 10) {
                 root.style.setProperty('--accent-color', '#9e0018'); 
                 root.style.setProperty('--glow-color', 'rgba(158, 0, 24, 0.2)');
@@ -221,7 +227,7 @@
             } else if (streak >= 8) {
                 root.style.setProperty('--accent-color', '#cc9a06'); 
                 tierEl.innerText = "🌀⚡ Super Saiyan level";
-                counterEl.classList.add('count-saiyan'); // Triggers burning fireball numbers
+                counterEl.classList.add('count-saiyan'); 
             } else if (streak >= 6) {
                 root.style.setProperty('--accent-color', '#1b4332'); 
                 root.style.setProperty('--glow-color', 'rgba(27, 67, 50, 0.15)');
@@ -244,6 +250,12 @@
         function checkIn() {
             streak++;
             lastCheckIn = new Date().toISOString();
+
+            // High Score Tracker Logic
+            if (streak > highestStreak) {
+                highestStreak = streak;
+                localStorage.setItem('highest_streak', highestStreak);
+            }
 
             localStorage.setItem('habit_streak', streak);
             localStorage.setItem('last_check_in', lastCheckIn);
