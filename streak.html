@@ -146,49 +146,49 @@
             }
         }
 
-        function updateVisuals() {
+       function updateVisuals() {
             counterEl.innerText = streak;
 
             /* RAPID TESTING MILESTONES SCALE */
             if (streak >= 14) {
                 // 8. Destroyer of World
-                root.style.setProperty('--accent-color', '#03071e'); 
-                root.style.setProperty('--glow-color', 'rgba(3, 7, 30, 0.2)');
+                root.style.setProperty('--accent-color', '#1a002c'); 
+                root.style.setProperty('--glow-color', 'rgba(26, 0, 44, 0.2)');
                 tierEl.innerText = "🌌 Destroyer of World 🔥";
             } else if (streak >= 12) {
                 // 7. Immortal King
-                root.style.setProperty('--accent-color', '#370617'); 
-                root.style.setProperty('--glow-color', 'rgba(55, 6, 23, 0.15)');
+                root.style.setProperty('--accent-color', '#411d73'); 
+                root.style.setProperty('--glow-color', 'rgba(65, 29, 115, 0.15)');
                 tierEl.innerText = "👑 Immortal King";
             } else if (streak >= 10) {
                 // 6. Berserker
-                root.style.setProperty('--accent-color', '#6a040f'); 
-                root.style.setProperty('--glow-color', 'rgba(106, 4, 15, 0.2)');
+                root.style.setProperty('--accent-color', '#9e0018'); 
+                root.style.setProperty('--glow-color', 'rgba(158, 0, 24, 0.2)');
                 tierEl.innerText = "🗡️💥 Berserker";
             } else if (streak >= 8) {
                 // 5. Super Saiyan level
-                root.style.setProperty('--accent-color', '#ff9f1c'); 
-                root.style.setProperty('--glow-color', 'rgba(255, 159, 28, 0.25)');
+                root.style.setProperty('--accent-color', '#cc9a06'); 
+                root.style.setProperty('--glow-color', 'rgba(204, 154, 6, 0.25)');
                 tierEl.innerText = "🌀⚡ Super Saiyan level";
             } else if (streak >= 6) {
                 // 4. Champion
-                root.style.setProperty('--accent-color', '#9b2226'); 
-                root.style.setProperty('--glow-color', 'rgba(155, 34, 38, 0.15)');
+                root.style.setProperty('--accent-color', '#1b4332'); 
+                root.style.setProperty('--glow-color', 'rgba(27, 67, 50, 0.15)');
                 tierEl.innerText = "🏆 Champion";
             } else if (streak >= 4) {
                 // 3. Challenger
-                root.style.setProperty('--accent-color', '#d62828'); 
-                root.style.setProperty('--glow-color', 'rgba(214, 40, 40, 0.15)');
+                root.style.setProperty('--accent-color', '#023e8a'); 
+                root.style.setProperty('--glow-color', 'rgba(2, 62, 138, 0.15)');
                 tierEl.innerText = "⚔️ Challenger";
             } else if (streak >= 2) {
                 // 2. Explorer
-                root.style.setProperty('--accent-color', '#e65f2b'); 
-                root.style.setProperty('--glow-color', 'rgba(230, 95, 43, 0.15)');
+                root.style.setProperty('--accent-color', '#2a9d8f'); 
+                root.style.setProperty('--glow-color', 'rgba(42, 157, 143, 0.15)');
                 tierEl.innerText = "🗺️ Explorer";
             } else {
                 // 1. Beginner
-                root.style.setProperty('--accent-color', '#9aa0a6'); 
-                root.style.setProperty('--glow-color', 'rgba(154, 160, 166, 0.1)');
+                root.style.setProperty('--accent-color', '#737373'); 
+                root.style.setProperty('--glow-color', 'rgba(115, 115, 115, 0.1)');
                 tierEl.innerText = "🌱 Beginner";
             }
         }
