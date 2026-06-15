@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Mobile First</title>
+    <title>Habit Matrix - Step 1.2</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -24,10 +24,10 @@
             font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Better for mobile embedding */
+            align-items: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 8px; /* Tighter spacing for phone screens */
+            padding: 8px;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
@@ -36,10 +36,10 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 16px; /* Reduced padding to save screen estate */
+            padding: 16px;
             box-shadow: 0 4px 20px rgba(74, 85, 104, 0.03);
             width: 100%;
-            max-width: 340px; /* Perfect sweet-spot for phone layouts */
+            max-width: 340px;
             box-sizing: border-box;
         }
 
@@ -82,11 +82,11 @@
         }
 
         .progress-zone {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .percentage {
-            font-size: 2.4rem; /* Slightly smaller for mobile scaling consistency */
+            font-size: 2.4rem;
             font-weight: 800;
             color: var(--text-main);
             margin-bottom: 6px;
@@ -108,8 +108,58 @@
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Tightly Engineered Mobile Rating Panel */
+        .rating-zone {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .rating-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rating-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .rating-select {
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .log-day-btn {
+            background-color: var(--progress-filled);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
         .habit-list {
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
             margin-bottom: 12px;
             padding-right: 2px;
@@ -131,14 +181,14 @@
             align-items: center;
             gap: 10px;
             flex: 1;
-            min-width: 0; /* Prevents long text from breaking mobile boundaries */
+            min-width: 0;
         }
 
         .habit-checkbox {
             width: 18px;
             height: 18px;
             accent-color: var(--progress-filled);
-            flex-shrink: 0; /* Prevents checkbox from squeezing */
+            flex-shrink: 0;
         }
 
         .habit-details {
@@ -153,7 +203,7 @@
             color: var(--text-main);
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Gracefully shortens super long habit names */
+            text-overflow: ellipsis;
         }
 
         .habit-text.completed {
@@ -178,7 +228,6 @@
             flex-shrink: 0;
         }
 
-        /* Fluid Mobile Grid Input Form */
         .add-container {
             display: flex;
             flex-direction: column;
@@ -220,7 +269,7 @@
         .week-selector {
             display: flex;
             justify-content: space-between;
-            gap: 2px; /* Super tight gap so it never wraps lines */
+            gap: 2px;
         }
 
         .day-checkbox-label {
@@ -234,7 +283,7 @@
 
         .day-box {
             display: block;
-            font-size: 0.65rem; /* Compact font for phone screens */
+            font-size: 0.65rem;
             font-weight: 700;
             color: var(--text-sub);
             background: var(--card-bg);
@@ -276,6 +325,19 @@
             </div>
         </div>
 
+        <div class="rating-zone">
+            <div class="rating-label">⚡ Complete & Log Day</div>
+            <div class="rating-row">
+                <select class="rating-select" id="day-rating-dropdown">
+                    <option value="productive">⚡ Productive Peak</option>
+                    <option value="focused">🔥 Focused Flow</option>
+                    <option value="recovery">🌱 Recovery Day</option>
+                    <option value="chaos">⚠️ Distracted Chaos</option>
+                </select>
+                <button class="log-day-btn" onclick="logCurrentDay()">Log</button>
+            </div>
+        </div>
+
         <div class="habit-list" id="habit-container"></div>
 
         <div class="add-container">
@@ -307,15 +369,15 @@
         
         document.getElementById('current-day-label').innerText = `📅 ${fullDayNames[currentDayIndex]}`;
 
-        let habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [
-            { id: 1, text: "Coding Practice", completed: false, days: ["Mo", "Tu", "We", "Th", "Fr"] },
-            { id: 2, text: "Weekly Grocery Run", completed: false, days: ["Sa", "Su"] }
-        ];
+        let habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
+        // History log data storage anchor
+        let historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
 
         const container = document.getElementById('habit-container');
         const percentEl = document.getElementById('progress-percent');
         const barEl = document.getElementById('progress-bar');
         const inputEl = document.getElementById('habit-input');
+        const ratingSelect = document.getElementById('day-rating-dropdown');
 
         function saveAndRender() {
             localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
@@ -358,7 +420,7 @@
             barEl.style.width = `${finalPercentage}%`;
 
             if (finalPercentage === 100 && todaysHabits.length > 0) {
-                confetti({ particleCount: 30, spread: 25, origin: { y: 0.85 } });
+                confetti({ particleCount: 20, spread: 20, origin: { y: 0.85 } });
             }
         }
 
@@ -389,6 +451,28 @@
         function deleteHabit(id) {
             habits = habits.filter(h => h.id !== id);
             saveAndRender();
+        }
+
+        // Logic function to save daily status state
+        function logCurrentDay() {
+            const todayKey = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+            const selectedStatus = ratingSelect.value;
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+            const completedCount = habits.filter(h => h.days.includes(currentDayName) && h.completed).length;
+            const score = todaysHabits.length > 0 ? Math.round((completedCount / todaysHabits.length) * 100) : 100;
+
+            historyLogs[todayKey] = {
+                status: selectedStatus,
+                completionScore: score
+            };
+
+            localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
+            
+            // Pop separate confetti to confirm logging save was successful
+            confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0 } });
+            confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1 } });
+            
+            alert(`Day logged successfully with a score of ${score}%!`);
         }
 
         inputEl.addEventListener('keypress', (e) => {
