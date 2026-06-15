@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Clean Edition</title>
+    <title>Habit Matrix - Analytics Edition</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -61,6 +61,7 @@
             padding: 6px 10px;
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -68,8 +69,12 @@
             color: var(--text-main);
         }
 
-        .tab-btn.disabled {
-            opacity: 0.3;
+        /* View Toggling Visibility States */
+        .view-section {
+            display: none;
+        }
+        .view-section.active {
+            display: block;
         }
 
         .day-indicator {
@@ -297,6 +302,92 @@
             border-color: var(--text-main);
         }
 
+        /* 📊 MOBILE FIRST CUSTOM ANALYTICS STYLING */
+        .chart-wrapper {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .bar-chart-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 120px;
+            padding: 0 4px;
+            margin-bottom: 4px;
+        }
+
+        .chart-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar-vertical-track {
+            background: var(--progress-empty);
+            width: 12px;
+            height: 90px;
+            border-radius: 6px;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .bar-vertical-fill {
+            background: var(--progress-filled);
+            width: 100%;
+            height: 0%; /* Dynamic height adjustment */
+            border-radius: 6px;
+            transition: height 0.5s ease-out;
+        }
+
+        .bar-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-top: 6px;
+        }
+
+        .history-stream-box {
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .history-log-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.78rem;
+        }
+
+        .history-log-left {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .history-log-right {
+            font-weight: 700;
+            color: var(--progress-filled);
+        }
+
         .empty-state {
             font-size: 0.75rem;
             color: var(--text-sub);
@@ -309,51 +400,74 @@
 <body>
 
     <div class="card">
+        <!-- Unified Navigation Tab Layout -->
         <div class="nav-tabs">
-            <button class="tab-btn active">⚔️ Combat</button>
-            <button class="tab-btn disabled">📊 Analytics</button>
+            <button class="tab-btn active" id="tab-combat-btn" onclick="switchTab('combat')">⚔️ Combat</button>
+            <button class="tab-btn" id="tab-analytics-btn" onclick="switchTab('analytics')">📊 Analytics</button>
         </div>
 
-        <div class="day-indicator" id="current-day-label">Loading day...</div>
-        
-        <div class="progress-zone">
-            <div class="percentage" id="progress-percent">0%</div>
-            <div class="bar-bg">
-                <div class="bar-fill" id="progress-bar"></div>
-            </div>
-        </div>
-
-        <div class="rating-zone">
-            <div class="rating-label">✨ Aaj ka din kaisa tha?</div>
-            <div class="rating-row">
-                <select class="rating-select" id="day-rating-dropdown">
-                    <option value="ek-number">⭐ ek number din tha</option>
-                    <option value="maaza">🔥 maaza hi agya</option>
-                    <option value="thik">👍 thik thik</option>
-                    <option value="kharab">👎 kharab</option>
-                    <option value="bhul-jana">🌧️ bhul jana hi thik hai</option>
-                </select>
-                <button class="log-day-btn" onclick="logCurrentDay()">Log</button>
-            </div>
-        </div>
-
-        <div class="habit-list" id="habit-container"></div>
-
-        <div class="add-container">
-            <div class="add-panel">
-                <input type="text" class="add-input" id="habit-input" placeholder="New routine..." maxlength="18">
-                <button class="add-btn" onclick="addHabit()">Add</button>
-            </div>
+        <!-- ⚔️ TAB 1: COMBAT AREA -->
+        <div id="section-combat" class="view-section active">
+            <div class="day-indicator" id="current-day-label">Loading day...</div>
             
-            <div class="week-selector">
-                <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
-                <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
-                <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
-                <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
-                <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
-                <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
-                <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+            <div class="progress-zone">
+                <div class="percentage" id="progress-percent">0%</div>
+                <div class="bar-bg">
+                    <div class="bar-fill" id="progress-bar"></div>
+                </div>
             </div>
+
+            <div class="rating-zone">
+                <div class="rating-label">✨ Aaj ka din kaisa tha?</div>
+                <div class="rating-row">
+                    <select class="rating-select" id="day-rating-dropdown">
+                        <option value="ek-number">⭐ ek number din tha</option>
+                        <option value="maaza">🔥 maaza hi agya</option>
+                        <option value="thik">👍 thik thik</option>
+                        <option value="kharab">👎 kharab</option>
+                        <option value="bhul-jana">🌧️ bhul jana hi thik hai</option>
+                    </select>
+                    <button class="log-day-btn" onclick="logCurrentDay()">Log</button>
+                </div>
+            </div>
+
+            <div class="habit-list" id="habit-container"></div>
+
+            <div class="add-container">
+                <div class="add-panel">
+                    <input type="text" class="add-input" id="habit-input" placeholder="New routine..." maxlength="18">
+                    <button class="add-btn" onclick="addHabit()">Add</button>
+                </div>
+                
+                <div class="week-selector">
+                    <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📊 TAB 2: ANALYTICS AREA -->
+        <div id="section-analytics" class="view-section">
+            <div class="chart-wrapper">
+                <div class="chart-title">Weekly Performance (%)</div>
+                <div class="bar-chart-container">
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Su"></div></div><span class="bar-label">Su</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Mo"></div></div><span class="bar-label">Mo</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Tu"></div></div><span class="bar-label">Tu</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-We"></div></div><span class="bar-label">We</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Th"></div></div><span class="bar-label">Th</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Fr"></div></div><span class="bar-label">Fr</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Sa"></div></div><span class="bar-label">Sa</span></div>
+                </div>
+            </div>
+
+            <div class="day-indicator">📋 History Review Logs</div>
+            <div class="history-stream-box" id="history-rows-container"></div>
         </div>
     </div>
 
@@ -376,6 +490,23 @@
         const barEl = document.getElementById('progress-bar');
         const inputEl = document.getElementById('habit-input');
         const ratingSelect = document.getElementById('day-rating-dropdown');
+        const historyContainer = document.getElementById('history-rows-container');
+
+        // Tab Switching Router Mechanics
+        function switchTab(targetTab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+            if (targetTab === 'combat') {
+                document.getElementById('tab-combat-btn').classList.add('active');
+                document.getElementById('section-combat').classList.add('active');
+                renderHabits();
+            } else {
+                document.getElementById('tab-analytics-btn').classList.add('active');
+                document.getElementById('section-analytics').classList.add('active');
+                renderAnalytics();
+            }
+        }
 
         function saveAndRender() {
             localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
@@ -394,7 +525,6 @@
             }
 
             let completedCount = 0;
-
             todaysHabits.forEach(habit => {
                 if (habit.completed) completedCount++;
 
@@ -452,9 +582,14 @@
         }
 
         function logCurrentDay() {
-            const todayKey = new Date().toISOString().split('T')[0];
+            const todayObj = new Date();
+            const todayKey = todayObj.toISOString().split('T')[0];
             const selectedStatus = ratingSelect.value;
             const textStatus = ratingSelect.options[ratingSelect.selectedIndex].text;
+            
+            // Get day index (0-6) and map to string label representation
+            const dayStr = dayNames[todayObj.getDay()];
+
             const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
             const completedCount = habits.filter(h => h.days.includes(currentDayName) && h.completed).length;
             const score = todaysHabits.length > 0 ? Math.round((completedCount / todaysHabits.length) * 100) : 100;
@@ -462,15 +597,58 @@
             historyLogs[todayKey] = {
                 status: selectedStatus,
                 statusLabel: textStatus,
-                completionScore: score
+                completionScore: score,
+                dayLabel: dayStr
             };
 
             localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
             
-            confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0 } });
-            confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1 } });
+            confetti({ particleCount: 30, angle: 60, spread: 45, origin: { x: 0 } });
+            confetti({ particleCount: 30, angle: 120, spread: 45, origin: { x: 1 } });
             
             alert(`Logged: "${textStatus}"`);
+        }
+
+        // 📊 ANALYTICS COMPILATION RENDER LOGIC
+        function renderAnalytics() {
+            historyContainer.innerHTML = '';
+            
+            // 1. Clear out graph rendering tracks first
+            dayNames.forEach(day => {
+                document.getElementById(`bar-${day}`).style.height = "0%";
+            });
+
+            const sortedLogKeys = Object.keys(historyLogs).sort().reverse(); // Sort newest logs first
+
+            if (sortedLogKeys.length === 0) {
+                historyContainer.innerHTML = `<div class="empty-state">No historical data found. Hit "Log" on your combat view!</div>`;
+                return;
+            }
+
+            // 2. Plot graph scores dynamically from saved keys
+            sortedLogKeys.forEach((key, index) => {
+                const item = historyLogs[key];
+                
+                // Update graph height bar if logged within the running chart frame
+                if (item.dayLabel) {
+                    const barFillEl = document.getElementById(`bar-${item.dayLabel}`);
+                    if (barFillEl) {
+                        barFillEl.style.height = `${item.completionScore}%`;
+                    }
+                }
+
+                // 3. Construct chronological scrolling table row list below graph
+                const logRow = document.createElement('div');
+                logRow.className = 'history-log-row';
+                logRow.innerHTML = `
+                    <div class="history-log-left">
+                        <span>${key.substring(5)} (${item.dayLabel || 'Day'})</span>
+                        <div style="font-size:0.7rem; color:var(--text-sub); font-weight:normal; margin-top:2px;">${item.statusLabel}</div>
+                    </div>
+                    <div class="history-log-right">${item.completionScore}%</div>
+                `;
+                historyContainer.appendChild(logRow);
+            });
         }
 
         inputEl.addEventListener('keypress', (e) => {
