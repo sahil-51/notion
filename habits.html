@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Matrix - Step 1.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>Habit Matrix - Mobile First</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -24,41 +24,42 @@
             font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Better for mobile embedding */
             min-height: 100vh;
             margin: 0;
-            padding: 15px;
+            padding: 8px; /* Tighter spacing for phone screens */
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 25px rgba(74, 85, 104, 0.04);
+            border-radius: 16px;
+            padding: 16px; /* Reduced padding to save screen estate */
+            box-shadow: 0 4px 20px rgba(74, 85, 104, 0.03);
             width: 100%;
-            max-width: 330px;
+            max-width: 340px; /* Perfect sweet-spot for phone layouts */
             box-sizing: border-box;
         }
 
         .nav-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .tab-btn {
             background: none;
             border: none;
             font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 700;
             color: var(--text-sub);
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
         }
 
@@ -68,37 +69,34 @@
         }
 
         .tab-btn.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
+            opacity: 0.3;
         }
 
         .day-indicator {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: var(--text-sub);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .progress-zone {
-            text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .percentage {
-            font-size: 3rem;
+            font-size: 2.4rem; /* Slightly smaller for mobile scaling consistency */
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             letter-spacing: -1px;
         }
 
         .bar-bg {
             background: var(--progress-empty);
             border-radius: 10px;
-            height: 8px;
+            height: 6px;
             width: 100%;
             overflow: hidden;
         }
@@ -108,13 +106,12 @@
             height: 100%;
             width: 0%;
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 10px;
         }
 
         .habit-list {
-            max-height: 220px;
+            max-height: 200px;
             overflow-y: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             padding-right: 2px;
         }
 
@@ -124,36 +121,39 @@
             justify-content: space-between;
             background: #ffffff;
             border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 6px;
         }
 
         .habit-left {
             display: flex;
             align-items: center;
-            gap: 12px;
-            cursor: pointer;
+            gap: 10px;
             flex: 1;
+            min-width: 0; /* Prevents long text from breaking mobile boundaries */
         }
 
         .habit-checkbox {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             accent-color: var(--progress-filled);
-            cursor: pointer;
+            flex-shrink: 0; /* Prevents checkbox from squeezing */
         }
 
         .habit-details {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .habit-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Gracefully shortens super long habit names */
         }
 
         .habit-text.completed {
@@ -162,9 +162,9 @@
         }
 
         .habit-days-badge {
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             color: var(--text-sub);
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .delete-btn {
@@ -173,52 +173,54 @@
             color: #eb5757;
             font-weight: 800;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             padding: 0 4px;
+            flex-shrink: 0;
         }
 
-        /* Advanced Schedule Input Selection Controls */
+        /* Fluid Mobile Grid Input Form */
         .add-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             background: #ffffff;
             border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 14px;
+            padding: 10px;
+            border-radius: 12px;
         }
 
         .add-panel {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .add-input {
             flex: 1;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 10px;
+            border-radius: 6px;
+            padding: 6px 8px;
             font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             outline: none;
             color: var(--text-main);
+            min-width: 0;
         }
 
         .add-btn {
             background-color: var(--text-main);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
-            padding: 0 14px;
+            border-radius: 6px;
+            padding: 0 12px;
             font-weight: 600;
+            font-size: 0.8rem;
             cursor: pointer;
-            font-size: 0.85rem;
         }
 
         .week-selector {
             display: flex;
             justify-content: space-between;
-            gap: 4px;
+            gap: 2px; /* Super tight gap so it never wraps lines */
         }
 
         .day-checkbox-label {
@@ -232,16 +234,14 @@
 
         .day-box {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.65rem; /* Compact font for phone screens */
             font-weight: 700;
             color: var(--text-sub);
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 6px 0;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 5px 0;
+            border-radius: 4px;
             user-select: none;
-            transition: all 0.15s ease;
         }
 
         .day-checkbox-label input:checked + .day-box {
@@ -251,10 +251,10 @@
         }
 
         .empty-state {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-sub);
             text-align: center;
-            margin: 25px 0;
+            margin: 20px 0;
             font-style: italic;
         }
     </style>
@@ -264,10 +264,10 @@
     <div class="card">
         <div class="nav-tabs">
             <button class="tab-btn active">⚔️ Combat</button>
-            <button class="tab-btn disabled" onclick="alert('Locked! Up next.')">📊 Analytics</button>
+            <button class="tab-btn disabled">📊 Analytics</button>
         </div>
 
-        <div class="day-indicator" id="current-day-label">Loading timeline...</div>
+        <div class="day-indicator" id="current-day-label">Loading day...</div>
         
         <div class="progress-zone">
             <div class="percentage" id="progress-percent">0%</div>
@@ -280,7 +280,7 @@
 
         <div class="add-container">
             <div class="add-panel">
-                <input type="text" class="add-input" id="habit-input" placeholder="New habit item..." maxlength="20">
+                <input type="text" class="add-input" id="habit-input" placeholder="New routine..." maxlength="18">
                 <button class="add-btn" onclick="addHabit()">Add</button>
             </div>
             
@@ -305,10 +305,9 @@
         const currentDayIndex = new Date().getDay();
         const currentDayName = dayNames[currentDayIndex];
         
-        document.getElementById('current-day-label').innerText = `📅 Today: ${fullDayNames[currentDayIndex]}`;
+        document.getElementById('current-day-label').innerText = `📅 ${fullDayNames[currentDayIndex]}`;
 
-        // Load scheduling array data from local engine storage
-        let habits = JSON.parse(localStorage.getItem('dashboard_habits_scheduled_v1')) || [
+        let habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [
             { id: 1, text: "Coding Practice", completed: false, days: ["Mo", "Tu", "We", "Th", "Fr"] },
             { id: 2, text: "Weekly Grocery Run", completed: false, days: ["Sa", "Su"] }
         ];
@@ -319,18 +318,16 @@
         const inputEl = document.getElementById('habit-input');
 
         function saveAndRender() {
-            localStorage.setItem('dashboard_habits_scheduled_v1', JSON.stringify(habits));
+            localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
             renderHabits();
         }
 
         function renderHabits() {
             container.innerHTML = '';
-            
-            // Filter list down to ONLY items targeted for execution today
             const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
 
             if (todaysHabits.length === 0) {
-                container.innerHTML = `<div class="empty-state">🎉 No active responsibilities scheduled for today! Rest up.</div>`;
+                container.innerHTML = `<div class="empty-state">🎉 Rest day! No habits scheduled.</div>`;
                 percentEl.innerText = "100%";
                 barEl.style.width = "100%";
                 return;
@@ -361,7 +358,7 @@
             barEl.style.width = `${finalPercentage}%`;
 
             if (finalPercentage === 100 && todaysHabits.length > 0) {
-                confetti({ particleCount: 40, spread: 30, origin: { y: 0.85 } });
+                confetti({ particleCount: 30, spread: 25, origin: { y: 0.85 } });
             }
         }
 
@@ -374,25 +371,17 @@
             const text = inputEl.value.trim();
             if (!text) return;
 
-            // Gather all currently checked day boxes from user selection
             const checkedDays = [];
-            const dayBoxes = document.querySelectorAll('.week-selector input');
-            dayBoxes.forEach(box => {
+            document.querySelectorAll('.week-selector input').forEach(box => {
                 if (box.checked) checkedDays.push(box.value);
             });
 
             if (checkedDays.length === 0) {
-                alert("Please select at least one day for this routine!");
+                alert("Select at least one day!");
                 return;
             }
 
-            habits.push({
-                id: Date.now(),
-                text: text,
-                completed: false,
-                days: checkedDays
-            });
-
+            habits.push({ id: Date.now(), text: text, completed: false, days: checkedDays });
             inputEl.value = '';
             saveAndRender();
         }
