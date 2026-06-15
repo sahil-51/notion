@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>Habit Matrix - Ultimate Cloud Edition</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+    
+    <style>
+        :root {
+            --bg-color: #ffffff; 
+            --card-bg: #fbfbfa;   
+            --border-color: #e9e9e6;
+            --text-main: #37352f; 
+            --text-sub: #787774;  
+            --accent-color: #4a5568; 
+            --progress-empty: #e9e9e6;
+            --progress-filled: #2a9d8f;
+            --glow-color: rgba(74, 85, 104, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 8px;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(74, 85, 104, 0.03);
+            width: 100%;
+            max-width: 340px;
+            box-sizing: border-box;
+            transition: all 0.5s ease;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background-color: #e9e9e6;
+            color: var(--text-main);
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        .rank-banner {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--glow-color);
+            transition: all 0.4s ease;
+        }
+
+        .max-streak-badge {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-sub);
+            background-color: #e9e9e6;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .streak-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .streak-number {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin: 2px 0;
+            transition: all 0.4s ease;
+            line-height: 1.1;
+        }
+
+        .rank-badge {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: all 0.4s ease;
+            margin-top: 4px;
+        }
+
+        .day-indicator {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .progress-zone { margin-bottom: 12px; }
+        .percentage {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            letter-spacing: -1px;
+        }
+
+        .bar-bg {
+            background: var(--progress-empty);
+            border-radius: 10px;
+            height: 6px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .bar-fill {
+            background: var(--progress-filled);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .rating-zone {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .rating-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        .rating-row { display: flex; gap: 6px; }
+        .rating-select {
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .log-day-btn {
+            background-color: var(--progress-filled);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .habit-list {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding-right: 2px;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+
+        .habit-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .habit-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--progress-filled);
+            flex-shrink: 0;
+        }
+
+        .habit-details { display: flex; flex-direction: column; min-width: 0; }
+        .habit-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .habit-text.completed { text-decoration: line-through; color: var(--text-sub); }
+        .habit-days-badge { font-size: 0.65rem; color: var(--text-sub); margin-top: 1px; }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #eb5757;
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 0 4px;
+            cursor: pointer;
+        }
+
+        .add-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .add-panel { display: flex; gap: 6px; }
+        .add-input {
+            flex: 1; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 6px; font-family: 'Inter', sans-serif; font-size: 0.8rem;
+            outline: none; color: var(--text-main); min-width: 0;
+        }
+        .add-btn {
+            background-color: var(--text-main); color: #ffffff; border: none;
+            border-radius: 6px; padding: 0 12px; font-weight: 600; font-size: 0.8rem;
+        }
+
+        .week-selector { display: flex; justify-content: space-between; gap: 2px; }
+        .day-checkbox-label { flex: 1; text-align: center; }
+        .day-checkbox-label input { display: none; }
+        .day-box {
+            display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-sub);
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 4px 0; border-radius: 4px; user-select: none;
+        }
+        .day-checkbox-label input:checked + .day-box {
+            background-color: var(--text-main); color: #ffffff; border-color: var(--text-main);
+        }
+
+        /* Analytics Specific Layouts */
+        .chart-wrapper { background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+        .chart-title { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 12px; }
+        .bar-chart-container { display: flex; justify-content: space-between; align-items: flex-end; height: 90px; }
+        .chart-column { display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .bar-vertical-track { background: var(--progress-empty); width: 10px; height: 65px; border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
+        .bar-vertical-fill { background: var(--progress-filled); width: 100%; height: 0%; border-radius: 6px; transition: height 0.4s ease; }
+        .bar-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); margin-top: 4px; }
+
+        .monthly-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; }
+        .monthly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+        .metric-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; text-align: center; }
+        .metric-val { font-size: 1.2rem; font-weight: 800; }
+        .metric-title { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+        .full-width-metric { grid-column: span 2; text-align: left; }
+        .mood-item { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; margin-bottom: 4px; }
+        
+        .empty-state { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin: 15px 0; font-style: italic; }
+        .sync-status { font-size: 0.6rem; color: var(--text-sub); text-align: center; margin-top: 8px; }
+
+        /* 🎬 ORIGINAL ANIME VISUAL TEXT EFFECTS */
+        .count-saiyan {
+            animation: textFlame 1.2s infinite alternate ease-in-out;
+        }
+        @keyframes textFlame {
+            0% { text-shadow: 0 0 10px #ffcc00, 0 -2px 15px #ff8800, 0 -4px 25px #ff3300; }
+            100% { text-shadow: 0 0 14px #ffcc00, 0 -4px 22px #ffaa00, 0 -8px 35px #ff5500; transform: scale(1.02); }
+        }
+
+        .count-royal {
+            animation: royalShimmer 2s infinite ease-in-out;
+        }
+        @keyframes royalShimmer {
+            0%, 100% { text-shadow: 0 0 8px #e0aaff, 0 0 20px #7b2cbf; }
+            50% { text-shadow: 0 0 15px #ffffff, 0 0 30px #9d4edd; transform: translateY(-1px); }
+        }
+
+        .count-frozen {
+            color: #64b5f6 !important; 
+            text-shadow: 0 4px 10px rgba(100, 181, 246, 0.6), 0 0 20px #e3f2fd;
+            animation: freezeShiver 0.5s ease-in-out;
+        }
+        @keyframes freezeShiver {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 50%, 90% { transform: translate(-2px, 1px); }
+            30%, 70% { transform: translate(2px, -1px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="main-widget-card">
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tab-combat-btn" onclick="switchTab('combat')">⚔️ Combat</button>
+            <button class="tab-btn" id="tab-analytics-btn" onclick="switchTab('analytics')">📊 Analytics</button>
+        </div>
+
+        <div id="section-combat" class="view-section active">
+            
+            <div class="rank-banner">
+                <div class="max-streak-badge">👑 Max Streak: <span id="highest-counter">0</span></div>
+                <div class="streak-title">Streak</div>
+                <div class="streak-number" id="global-streak-counter">0</div>
+                <div class="rank-badge" id="global-rank-label">🦥 Lazy Sloth</div>
+            </div>
+
+            <div class="day-indicator" id="current-day-label">Loading timeline...</div>
+            <div class="progress-zone">
+                <div class="percentage" id="progress-percent">0%</div>
+                <div class="bar-bg"><div class="bar-fill" id="progress-bar"></div></div>
+            </div>
+
+            <div class="rating-zone">
+                <div class="rating-label">✨ Aaj ka din kaisa tha?</div>
+                <div class="rating-row">
+                    <select class="rating-select" id="day-rating-dropdown">
+                        <option value="ek-number">⭐ ek number din tha</option>
+                        <option value="maaza">🔥 maaza hi agya</option>
+                        <option value="thik">👍 thik thik</option>
+                        <option value="kharab">👎 kharab</option>
+                        <option value="bhul-jana">🌧️ bhul jana hi thik hai</option>
+                    </select>
+                    <button class="log-day-btn" onclick="logCurrentDay()">Log</button>
+                </div>
+            </div>
+
+            <div class="habit-list" id="habit-container"></div>
+
+            <div class="add-container">
+                <div class="add-panel">
+                    <input type="text" class="add-input" id="habit-input" placeholder="New routine..." maxlength="18">
+                    <button class="add-btn" onclick="addHabit()">Add</button>
+                </div>
+                <div class="week-selector">
+                    <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
+                    <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-analytics" class="view-section">
+            <div class="chart-wrapper">
+                <div class="chart-title">Weekly Performance (%)</div>
+                <div class="bar-chart-container">
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Su"></div></div><span class="bar-label">Su</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Mo"></div></div><span class="bar-label">Mo</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Tu"></div></div><span class="bar-label">Tu</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-We"></div></div><span class="bar-label">We</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Th"></div></div><span class="bar-label">Th</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Fr"></div></div><span class="bar-label">Fr</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Sa"></div></div><span class="bar-label">Sa</span></div>
+                </div>
+            </div>
+
+            <div class="monthly-card">
+                <div class="chart-title" id="monthly-title-label">Monthly Analytics Overview</div>
+                <div class="monthly-grid">
+                    <div class="metric-box"><div class="metric-val" id="month-avg-val">0%</div><div class="metric-title">Consistency</div></div>
+                    <div class="metric-box"><div class="metric-val" id="month-perfect-val">0</div><div class="metric-title">Perfect Days</div></div>
+                    <div class="metric-box full-width-metric">
+                        <div class="mood-item"><span>⭐ Ek Number Days:</span><span id="mood-cnt-ek">0</span></div>
+                        <div class="mood-item"><span>🔥 Maaza Days:</span><span id="mood-cnt-maaza">0</span></div>
+                        <div class="mood-item"><span>👍 Thik Thik Days:</span><span id="mood-cnt-thik">0</span></div>
+                        <div class="mood-item"><span>👎 Kharab/Bhul Jana:</span><span id="mood-cnt-bad">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sync-status" id="cloud-sync-label">☁️ Synced to cloud</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // ☁️ GLOBAL SECURE STORAGE CLOUD BUCKET KEY
+        const CLOUD_URL = "https://kvdb.io/MNY6wXn7Y9wR8xZ2pA4qB9/sahil_dashboard_data";
+
+        const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+        const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        const currentDayIndex = new Date().getDay();
+        const currentDayName = dayNames[currentDayIndex];
+        document.getElementById('current-day-label').innerText = `📅 ${fullDayNames[currentDayIndex]}`;
+
+        let habits = [];
+        let historyLogs = {};
+        let currentStreak = 0;
+        let highestStreak = 0;
+        let lastLoggedDate = "";
+
+        const streakNumEl = document.getElementById('global-streak-counter');
+        const streakMaxEl = document.getElementById('highest-counter');
+        const rankLabelEl = document.getElementById('global-rank-label');
+        const container = document.getElementById('habit-container');
+        const percentEl = document.getElementById('progress-percent');
+        const barEl = document.getElementById('progress-bar');
+        const inputEl = document.getElementById('habit-input');
+        const ratingSelect = document.getElementById('day-rating-dropdown');
+        const syncLabel = document.getElementById('cloud-sync-label');
+        const root = document.documentElement;
+
+        async function fetchFromCloud() {
+            syncLabel.innerText = "🔄 Syncing with cloud...";
+            try {
+                const response = await fetch(CLOUD_URL);
+                if (response.ok) {
+                    const data = await response.json();
+                    habits = data.habits || [];
+                    historyLogs = data.historyLogs || {};
+                    currentStreak = data.currentStreak || 0;
+                    highestStreak = data.highestStreak || 0;
+                    lastLoggedDate = data.lastLoggedDate || "";
+                    calculateStreakMetrics(false);
+                }
+            } catch (err) {
+                habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
+                historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
+                currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
+                highestStreak = parseInt(localStorage.getItem('dashboard_highest_v1')) || 0;
+                lastLoggedDate = localStorage.getItem('dashboard_last_date_v1') || "";
+                calculateStreakMetrics(false);
+            }
+            syncLabel.innerText = "☁️ Synced to cloud";
+            renderHabits();
+        }
+
+        async function pushToCloud() {
+            syncLabel.innerText = "⚡ Uploading updates...";
+            const dataPackage = { habits, historyLogs, currentStreak, highestStreak, lastLoggedDate };
+            
+            localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
+            localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
+            localStorage.setItem('dashboard_streak_v1', currentStreak);
+            localStorage.setItem('dashboard_highest_v1', highestStreak);
+            localStorage.setItem('dashboard_last_date_v1', lastLoggedDate);
+
+            try {
+                await fetch(CLOUD_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(dataPackage),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (err) {
+                console.error("Cloud lag detected.");
+            }
+            syncLabel.innerText = "☁️ Synced to cloud";
+        }
+
+        // 📅 Core Verification Rules Engine mapping your exact original milestones scale
+        function calculateStreakMetrics(isFreezeTriggerAllowed) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let wasResetTriggered = false;
+
+            if (lastLoggedDate) {
+                const todayObj = new Date(todayStr);
+                const lastLogObj = new Date(lastLoggedDate);
+                const diffTime = Math.abs(todayObj - lastLogObj);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 1 && lastLoggedDate !== todayStr) {
+                    currentStreak = 0;
+                    wasResetTriggered = true;
+                }
+            }
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+            }
+
+            streakMaxEl.innerText = highestStreak;
+            streakNumEl.className = "streak-number";
+
+            if (wasResetTriggered && isFreezeTriggerAllowed) {
+                streakNumEl.className = "streak-number count-frozen";
+            }
+
+            streakNumEl.innerText = currentStreak;
+
+            /* 👑 RESTORED ORIGINAL MILESTONES SCALING */
+            let rankText = "🦥 Lazy Sloth";
+            
+            if (currentStreak >= 365) {
+                root.style.setProperty('--accent-color', '#1a002c'); 
+                root.style.setProperty('--glow-color', 'rgba(26, 0, 44, 0.15)');
+                rankText = "🌌 destroyer of world 🔥";
+            } else if (currentStreak >= 200) {
+                root.style.setProperty('--accent-color', '#411d73'); 
+                root.style.setProperty('--glow-color', 'rgba(65, 29, 115, 0.15)');
+                rankText = "👑 Immortal King";
+                streakNumEl.classList.add('count-royal');
+            } else if (currentStreak >= 100) {
+                root.style.setProperty('--accent-color', '#9e0018'); 
+                root.style.setProperty('--glow-color', 'rgba(158, 0, 24, 0.15)');
+                rankText = "🗡️💥 Berserker";
+            } else if (currentStreak >= 50) {
+                root.style.setProperty('--accent-color', '#cc9a06'); 
+                root.style.setProperty('--glow-color', 'rgba(204, 154, 6, 0.15)');
+                rankText = "🌀⚡ Super Saiyan level";
+                streakNumEl.classList.add('count-saiyan');
+            } else if (currentStreak >= 21) {
+                root.style.setProperty('--accent-color', '#1b4332'); 
+                root.style.setProperty('--glow-color', 'rgba(27, 67, 50, 0.12)');
+                rankText = "🏆 Champion";
+            } else if (currentStreak >= 7) {
+                root.style.setProperty('--accent-color', '#023e8a'); 
+                root.style.setProperty('--glow-color', 'rgba(2, 62, 138, 0.12)');
+                rankText = "⚔️ Challenger";
+            } else if (currentStreak >= 1) {
+                root.style.setProperty('--accent-color', '#2a9d8f'); 
+                root.style.setProperty('--glow-color', 'rgba(42, 157, 143, 0.12)');
+                rankText = "🗺️ Explorer";
+            } else {
+                root.style.setProperty('--accent-color', '#787774'); 
+                root.style.setProperty('--glow-color', 'rgba(120, 119, 116, 0.08)');
+                rankText = "🦥 Lazy Sloth";
+            }
+
+            rankLabelEl.innerText = rankText;
+        }
+
+        function switchTab(targetTab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+            if (targetTab === 'combat') {
+                document.getElementById('tab-combat-btn').classList.add('active');
+                document.getElementById('section-combat').classList.add('active');
+                renderHabits();
+            } else {
+                document.getElementById('tab-analytics-btn').classList.add('active');
+                document.getElementById('section-analytics').classList.add('active');
+                renderAnalytics();
+            }
+        }
+
+        function renderHabits() {
+            container.innerHTML = '';
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+
+            if (todaysHabits.length === 0) {
+                container.innerHTML = `<div class="empty-state">🎉 Rest day! No habits scheduled.</div>`;
+                percentEl.innerText = "100%";
+                barEl.style.width = "100%";
+                return;
+            }
+
+            let completedCount = 0;
+            todaysHabits.forEach(habit => {
+                if (habit.completed) completedCount++;
+
+                const item = document.createElement('div');
+                item.className = 'habit-item';
+                item.innerHTML = `
+                    <div class="habit-left" onclick="toggleHabit(${habit.id})">
+                        <input type="checkbox" class="habit-checkbox" ${habit.completed ? 'checked' : ''} readonly>
+                        <div class="habit-details">
+                            <span class="habit-text ${habit.completed ? 'completed' : ''}">${habit.text}</span>
+                            <span class="habit-days-badge">🗓️ ${habit.days.join(', ')}</span>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteHabit(${habit.id})">×</button>
+                `;
+                container.appendChild(item);
+            });
+
+            const finalPercentage = Math.round((completedCount / todaysHabits.length) * 100);
+            percentEl.innerText = `${finalPercentage}%`;
+            barEl.style.width = `${finalPercentage}%`;
+
+            if (finalPercentage === 100 && todaysHabits.length > 0) {
+                confetti({ 
+                    particleCount: 50, 
+                    spread: 40, 
+                    origin: { y: 0.8 },
+                    colors: [getComputedStyle(root).getPropertyValue('--accent-color').trim(), '#ffffff']
+                });
+            }
+        }
+
+        function toggleHabit(id) {
+            habits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
+            renderHabits();
+            pushToCloud();
+        }
+
+        function addHabit() {
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            const checkedDays = [];
+            document.querySelectorAll('.week-selector input').forEach(box => {
+                if (box.checked) checkedDays.push(box.value);
+            });
+
+            if (checkedDays.length === 0) {
+                alert("Select at least one day!");
+                return;
+            }
+
+            habits.push({ id: Date.now(), text: text, completed: false, days: checkedDays });
+            inputEl.value = '';
+            renderHabits();
+            pushToCloud();
+        }
+
+        function deleteHabit(id) {
+            habits = habits.filter(h => h.id !== id);
+            renderHabits();
+            pushToCloud();
+        }
+
+        function logCurrentDay() {
+            const todayObj = new Date();
+            const todayKey = todayObj.toISOString().split('T')[0];
+            const selectedStatus = ratingSelect.value;
+            const textStatus = ratingSelect.options[ratingSelect.selectedIndex].text;
+            const dayStr = dayNames[todayObj.getDay()];
+
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+            const completedCount = habits.filter(h => h.days.includes(currentDayName) && h.completed).length;
+            const score = todaysHabits.length > 0 ? Math.round((completedCount / todaysHabits.length) * 100) : 100;
+
+            if (lastLoggedDate !== todayKey) {
+                currentStreak++;
+                lastLoggedDate = todayKey;
+            }
+
+            historyLogs[todayKey] = {
+                status: selectedStatus,
+                statusLabel: textStatus,
+                completionScore: score,
+                dayLabel: dayStr
+            };
+
+            calculateStreakMetrics(true);
+            
+            confetti({ particleCount: 30, angle: 60, spread: 45, origin: { x: 0 } });
+            confetti({ particleCount: 30, angle: 120, spread: 45, origin: { x: 1 } });
+            
+            alert(`Logged: "${textStatus}"!`);
+            pushToCloud();
+        }
+
+        function renderAnalytics() {
+            dayNames.forEach(day => {
+                document.getElementById(`bar-${day}`).style.height = "0%";
+            });
+
+            const currentYearMonth = new Date().toISOString().substring(0, 7);
+            document.getElementById('monthly-title-label').innerText = `🗓️ ${monthNames[new Date().getMonth()]} Analytics`;
+
+            const sortedLogKeys = Object.keys(historyLogs).sort().reverse();
+
+            let currentMonthTotalScore = 0;
+            let currentMonthLogCount = 0;
+            let perfectDaysCount = 0;
+            let moodCounters = { ek: 0, maaza: 0, thik: 0, bad: 0 };
+
+            if (sortedLogKeys.length === 0) {
+                updateMonthlyDOM(0, 0, moodCounters);
+                return;
+            }
+
+            sortedLogKeys.forEach((key) => {
+                const item = historyLogs[key];
+                
+                if (item.dayLabel) {
+                    const barFillEl = document.getElementById(`bar-${item.dayLabel}`);
+                    if (barFillEl) barFillEl.style.height = `${item.completionScore}%`;
+                }
+
+                if (key.startsWith(currentYearMonth)) {
+                    currentMonthLogCount++;
+                    currentMonthTotalScore += item.completionScore;
+                    
+                    if (item.completionScore === 100) perfectDaysCount++;
+
+                    if (item.status === 'ek-number') moodCounters.ek++;
+                    else if (item.status === 'maaza') moodCounters.maaza++;
+                    else if (item.status === 'thik') moodCounters.thik++;
+                    else if (item.status === 'kharab' || item.status === 'bhul-jana') moodCounters.bad++;
+                }
+            });
+
+            const finalMonthAvg = currentMonthLogCount > 0 ? Math.round(currentMonthTotalScore / currentMonthLogCount) : 0;
+            updateMonthlyDOM(finalMonthAvg, perfectDaysCount, moodCounters);
+        }
+
+        function updateMonthlyDOM(avg, perfects, moods) {
+            document.getElementById('month-avg-val').innerText = `${avg}%`;
+            document.getElementById('month-perfect-val').innerText = perfects;
+            document.getElementById('mood-cnt-ek').innerText = moods.ek;
+            document.getElementById('mood-cnt-maaza').innerText = moods.maaza;
+            document.getElementById('mood-cnt-thik').innerText = moods.thik;
+            document.getElementById('mood-cnt-bad').innerText = moods.bad;
+        }
+
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addHabit();
+        });
+
+        fetchFromCloud();
+    </script>
+</body>
+</html>
