@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Dynamic Habit Widget</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+    
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Notion Canvas Match */
+            --card-bg: #fbfbfa;   
+            --border-color: #e9e9e6;
+            --text-main: #37352f; 
+            --text-sub: #787774;  
+            --accent-color: #4a5568; 
+            --progress-empty: #e9e9e6;
+            --progress-filled: #2a9d8f;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 20px rgba(74, 85, 104, 0.04);
+            width: 100%;
+            max-width: 310px;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.05rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-sub);
+            text-align: center;
+        }
+
+        .progress-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .percentage {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .bar-bg {
+            background: var(--progress-empty);
+            border-radius: 10px;
+            height: 8px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: var(--progress-filled);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+        }
+
+        .habit-list {
+            margin-top: 15px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        .habit-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .habit-checkbox {
+            width: 19px;
+            height: 19px;
+            accent-color: var(--progress-filled);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .habit-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .habit-text.completed {
+            text-decoration: line-through;
+            color: var(--text-sub);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #eb5757;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 4px;
+            transition: transform 0.15s ease;
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.15);
+        }
+
+        .add-control {
+            display: flex;
+            gap: 6px;
+            margin-top: 15px;
+        }
+
+        .add-input {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            background: #ffffff;
+            color: var(--text-main);
+        }
+
+        .add-btn {
+            background-color: var(--text-main);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            text-align: center;
+            margin: 20px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h3>Habit Matrix</h3>
+        
+        <div class="progress-container">
+            <div class="percentage" id="progress-percent">0%</div>
+            <div class="bar-bg">
+                <div class="bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="habit-list" id="habit-container"></div>
+
+        <div class="add-control">
+            <input type="text" class="add-input" id="habit-input" placeholder="Add custom routine..." maxlength="22">
+            <button class="add-btn" onclick="addHabit()">Add</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        let habits = JSON.parse(localStorage.getItem('notion_habits_v2')) || [
+            { id: 1, text: "Coding Practice", completed: false },
+            { id: 2, text: "Read 5 Pages", completed: false }
+        ];
+
+        const container = document.getElementById('habit-container');
+        const percentEl = document.getElementById('progress-percent');
+        const barEl = document.getElementById('progress-bar');
+        const inputEl = document.getElementById('habit-input');
+
+        function saveAndRender() {
+            localStorage.setItem('notion_habits_v2', JSON.stringify(habits));
+            renderHabits();
+        }
+
+        function renderHabits() {
+            container.innerHTML = '';
+            
+            if (habits.length === 0) {
+                container.innerHTML = `<div class="empty-state">No active habits. Add one below!</div>`;
+                percentEl.innerText = "0%";
+                barEl.style.width = "0%";
+                return;
+            }
+
+            let completedCount = 0;
+
+            habits.forEach(habit => {
+                if (habit.completed) completedCount++;
+
+                const item = document.createElement('div');
+                item.className = 'habit-item';
+                item.innerHTML = `
+                    <div class="habit-left" onclick="toggleHabit(${habit.id})">
+                        <input type="checkbox" class="habit-checkbox" ${habit.completed ? 'checked' : ''} readonly>
+                        <span class="habit-text ${habit.completed ? 'completed' : ''}">${habit.text}</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteHabit(${habit.id})">×</button>
+                `;
+                container.appendChild(item);
+            });
+
+            const finalPercentage = Math.round((completedCount / habits.length) * 100);
+            percentEl.innerText = `${finalPercentage}%`;
+            barEl.style.width = `${finalPercentage}%`;
+
+            if (finalPercentage === 100 && habits.length > 0) {
+                confetti({ particleCount: 50, spread: 40, origin: { y: 0.85 } });
+            }
+        }
+
+        function toggleHabit(id) {
+            habits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
+            saveAndRender();
+        }
+
+        function addHabit() {
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            habits.push({ id: Date.now(), text: text, completed: false });
+            inputEl.value = '';
+            saveAndRender();
+        }
+
+        function deleteHabit(id) {
+            habits = habits.filter(h => h.id !== id);
+            saveAndRender();
+        }
+
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addHabit();
+        });
+
+        renderHabits();
+    </script>
+</body>
+</html>
