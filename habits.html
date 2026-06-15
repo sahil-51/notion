@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Complete Analytics Edition</title>
+    <title>Habit Matrix - Streamlined Analytics</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -301,7 +301,7 @@
             border-color: var(--text-main);
         }
 
-        /* 📊 ANALYTICS INTEGRATIONS */
+        /* 📊 ANALYTICS COMPACT STYLING */
         .chart-wrapper {
             background: #ffffff;
             border: 1px solid var(--border-color);
@@ -359,13 +359,11 @@
             margin-top: 6px;
         }
 
-        /* 🗓️ MONTHLY LOG QUANTIFIERS */
         .monthly-card {
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 14px;
             padding: 14px;
-            margin-bottom: 14px;
         }
 
         .monthly-grid {
@@ -412,31 +410,12 @@
         }
         .mood-item:last-child { margin-bottom: 0; }
 
-        .history-stream-box {
-            max-height: 130px;
-            overflow-y: auto;
-        }
-
-        .history-log-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 6px;
-            font-size: 0.78rem;
-        }
-
-        .history-log-left {
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .history-log-right {
-            font-weight: 700;
-            color: var(--progress-filled);
+        .empty-state {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            text-align: center;
+            margin: 10px 0;
+            font-style: italic;
         }
     </style>
 </head>
@@ -495,7 +474,6 @@
 
         <!-- 📊 TAB 2: ANALYTICS -->
         <div id="section-analytics" class="view-section">
-            <!-- Weekly Chart Block -->
             <div class="chart-wrapper">
                 <div class="chart-title">Weekly Performance (%)</div>
                 <div class="bar-chart-container">
@@ -509,7 +487,6 @@
                 </div>
             </div>
 
-            <!-- 🗓️ NEW MONTHLY ANALYSIS PANEL -->
             <div class="monthly-card">
                 <div class="chart-title" id="monthly-title-label">Monthly Analytics Overview</div>
                 <div class="monthly-grid">
@@ -529,9 +506,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="day-indicator">📋 History Review Logs</div>
-            <div class="history-stream-box" id="history-rows-container"></div>
         </div>
     </div>
 
@@ -555,7 +529,6 @@
         const barEl = document.getElementById('progress-bar');
         const inputEl = document.getElementById('habit-input');
         const ratingSelect = document.getElementById('day-rating-dropdown');
-        const historyContainer = document.getElementById('history-rows-container');
 
         function switchTab(targetTab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -671,28 +644,22 @@
             alert(`Logged: "${textStatus}"`);
         }
 
-        // 📊 COMBINED WEEKLY & MONTHLY COMPILATION LOGIC
         function renderAnalytics() {
-            historyContainer.innerHTML = '';
-            
-            // Clear baseline weekly chart lines
             dayNames.forEach(day => {
                 document.getElementById(`bar-${day}`).style.height = "0%";
             });
 
-            const currentYearMonth = new Date().toISOString().substring(0, 7); // Format: YYYY-MM
+            const currentYearMonth = new Date().toISOString().substring(0, 7);
             document.getElementById('monthly-title-label').innerText = `🗓️ ${monthNames[new Date().getMonth()]} Analytics`;
 
             const sortedLogKeys = Object.keys(historyLogs).sort().reverse();
 
-            // Monthly calculation variables
             let currentMonthTotalScore = 0;
             let currentMonthLogCount = 0;
             let perfectDaysCount = 0;
             let moodCounters = { ek: 0, maaza: 0, thik: 0, bad: 0 };
 
             if (sortedLogKeys.length === 0) {
-                historyContainer.innerHTML = `<div class="empty-state">No history log records found.</div>`;
                 updateMonthlyDOM(0, 0, moodCounters);
                 return;
             }
@@ -700,40 +667,24 @@
             sortedLogKeys.forEach((key) => {
                 const item = historyLogs[key];
                 
-                // Plot core weekly graph lines if running within target frame
                 if (item.dayLabel) {
                     const barFillEl = document.getElementById(`bar-${item.dayLabel}`);
                     if (barFillEl) barFillEl.style.height = `${item.completionScore}%`;
                 }
 
-                // Parse out running month key entries
                 if (key.startsWith(currentYearMonth)) {
                     currentMonthLogCount++;
                     currentMonthTotalScore += item.completionScore;
                     
                     if (item.completionScore === 100) perfectDaysCount++;
 
-                    // Sort into custom Hindi string counter buckets
                     if (item.status === 'ek-number') moodCounters.ek++;
                     else if (item.status === 'maaza') moodCounters.maaza++;
                     else if (item.status === 'thik') moodCounters.thik++;
                     else if (item.status === 'kharab' || item.status === 'bhul-jana') moodCounters.bad++;
                 }
-
-                // Render logs review tracking rows
-                const logRow = document.createElement('div');
-                logRow.className = 'history-log-row';
-                logRow.innerHTML = `
-                    <div class="history-log-left">
-                        <span>${key.substring(5)} (${item.dayLabel || 'Day'})</span>
-                        <div style="font-size:0.68rem; color:var(--text-sub); font-weight:normal; margin-top:2px;">${item.statusLabel}</div>
-                    </div>
-                    <div class="history-log-right">${item.completionScore}%</div>
-                `;
-                historyContainer.appendChild(logRow);
             });
 
-            // Calculate final monthly average consistency
             const finalMonthAvg = currentMonthLogCount > 0 ? Math.round(currentMonthTotalScore / currentMonthLogCount) : 0;
             updateMonthlyDOM(finalMonthAvg, perfectDaysCount, moodCounters);
         }
