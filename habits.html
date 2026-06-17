@@ -483,7 +483,7 @@
                     <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Mo"></div></div><span class="bar-label">Mo</span></div>
                     <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Tu"></div></div><span class="bar-label">Tu</span></div>
                     <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-We"></div></div><span class="bar-label">We</span></div>
-                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Th"></div></div><span class="bar-label); line-height: 1.1">Th</span></div>
+                    <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Th"></div></div><span class="bar-label">Th</span></div>
                     <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Fr"></div></div><span class="bar-label">Fr</span></div>
                     <div class="chart-column"><div class="bar-vertical-track"><div class="bar-vertical-fill" id="bar-Sa"></div></div><span class="bar-label">Sa</span></div>
                 </div>
@@ -853,4 +853,65 @@
             pushToCloud();
         }
 
-        function render
+        function renderAnalytics() {
+            dayNames.forEach(day => {
+                document.getElementById(`bar-${day}`).style.height = "0%";
+            });
+
+            const currentYearMonth = new Date().toISOString().substring(0, 7);
+            document.getElementById('monthly-title-label').innerText = `🗓️ ${monthNames[new Date().getMonth()]} Analytics`;
+
+            const sortedLogKeys = Object.keys(historyLogs).sort().reverse();
+
+            let currentMonthTotalScore = 0;
+            let currentMonthLogCount = 0;
+            let perfectDaysCount = 0;
+            let moodCounters = { ek: 0, maaza: 0, thik: 0, bad: 0 };
+
+            if (sortedLogKeys.length === 0) {
+                updateMonthlyDOM(0, 0, moodCounters);
+                return;
+            }
+
+            sortedLogKeys.forEach((key) => {
+                const item = historyLogs[key];
+                
+                if (item.dayLabel) {
+                    const barFillEl = document.getElementById(`bar-${item.dayLabel}`);
+                    if (barFillEl) barFillEl.style.height = `${item.completionScore}%`;
+                }
+
+                if (key.startsWith(currentYearMonth)) {
+                    currentMonthLogCount++;
+                    currentMonthTotalScore += item.completionScore;
+                    
+                    if (item.completionScore === 100) perfectDaysCount++;
+
+                    if (item.status === 'ek-number') moodCounters.ek++;
+                    else if (item.status === 'maaza') moodCounters.maaza++;
+                    else if (item.status === 'thik') moodCounters.thik++;
+                    else if (item.status === 'kharab' || item.status === 'bhul-jana') moodCounters.bad++;
+                }
+            });
+
+            const finalMonthAvg = currentMonthLogCount > 0 ? Math.round(currentMonthTotalScore / currentMonthLogCount) : 0;
+            updateMonthlyDOM(finalMonthAvg, perfectDaysCount, moodCounters);
+        }
+
+        function updateMonthlyDOM(avg, perfects, moods) {
+            document.getElementById('month-avg-val').innerText = `${avg}%`;
+            document.getElementById('month-perfect-val').innerText = perfects;
+            document.getElementById('mood-cnt-ek').innerText = moods.ek;
+            document.getElementById('mood-cnt-maaza').innerText = moods.maaza;
+            document.getElementById('mood-cnt-thik').innerText = moods.thik;
+            document.getElementById('mood-cnt-bad').innerText = moods.bad;
+        }
+
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addHabit();
+        });
+
+        fetchFromCloud();
+    </script>
+</body>
+</html>
