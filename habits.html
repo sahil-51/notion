@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Streamlined Analytics</title>
+    <title>Habit Matrix - Ultimate Fixed Edition</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -16,6 +16,7 @@
             --accent-color: #4a5568; 
             --progress-empty: #e9e9e6;
             --progress-filled: #2a9d8f;
+            --glow-color: rgba(74, 85, 104, 0.04);
         }
 
         body {
@@ -37,16 +38,53 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 16px;
-            box-shadow: 0 4px 20px rgba(74, 85, 104, 0.03);
+            box-shadow: 0 4px 20px var(--glow-color);
             width: 100%;
             max-width: 340px;
             box-sizing: border-box;
         }
 
+        /* Live Status Terminal Indicator */
+        .cloud-console-hud {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f1f1ef;
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .console-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #eb5757;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        .status-dot.online {
+            background: #2a9d8f;
+            box-shadow: 0 0 8px rgba(42, 157, 143, 0.5);
+        }
+        .console-timestamp {
+            font-size: 0.62rem;
+            font-family: monospace;
+            color: var(--text-sub);
+        }
+
         .nav-tabs {
             display: flex;
             gap: 6px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
         }
@@ -61,7 +99,6 @@
             padding: 6px 10px;
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -69,11 +106,57 @@
             color: var(--text-main);
         }
 
-        .view-section {
-            display: none;
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        .rank-banner {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.01);
         }
-        .view-section.active {
-            display: block;
+
+        .max-streak-badge {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-sub);
+            background-color: #e9e9e6;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .streak-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .streak-number {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin: 2px 0;
+            line-height: 1.1;
+        }
+
+        .rank-badge {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin-top: 4px;
         }
 
         .day-indicator {
@@ -81,16 +164,12 @@
             font-weight: 700;
             color: var(--text-sub);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 4px;
         }
 
-        .progress-zone {
-            margin-bottom: 12px;
-        }
-
+        .progress-zone { margin-bottom: 12px; }
         .percentage {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--text-main);
             margin-bottom: 6px;
@@ -104,12 +183,11 @@
             width: 100%;
             overflow: hidden;
         }
-
         .bar-fill {
             background: var(--progress-filled);
             height: 100%;
             width: 0%;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.4s ease;
         }
 
         .rating-zone {
@@ -117,33 +195,28 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-
-        .rating-label {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .rating-row {
-            display: flex;
             gap: 6px;
         }
 
+        .rating-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        .rating-row { display: flex; gap: 6px; }
         .rating-select {
             flex: 1;
             font-family: 'Inter', sans-serif;
             font-size: 0.8rem;
             font-weight: 600;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 6px;
             background-color: var(--card-bg);
             color: var(--text-main);
             outline: none;
@@ -153,7 +226,7 @@
             background-color: var(--progress-filled);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 0 12px;
             font-size: 0.8rem;
             font-weight: 700;
@@ -161,7 +234,7 @@
         }
 
         .habit-list {
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
             margin-bottom: 12px;
             padding-right: 2px;
@@ -193,12 +266,8 @@
             flex-shrink: 0;
         }
 
-        .habit-details {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
+        .habit-details { display: flex; flex-direction: column; min-width: 0; }
+        .habit-text-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
         .habit-text {
             font-size: 0.85rem;
             font-weight: 600;
@@ -207,54 +276,77 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        .habit-text.completed {
-            text-decoration: line-through;
-            color: var(--text-sub);
-        }
-
-        .habit-days-badge {
-            font-size: 0.65rem;
-            color: var(--text-sub);
-            margin-top: 1px;
-        }
+        .habit-text.completed { text-decoration: line-through; color: var(--text-sub); }
+        .weight-badge { font-size: 0.75rem; flex-shrink: 0; }
+        .habit-days-badge { font-size: 0.65rem; color: var(--text-sub); margin-top: 1px; }
 
         .delete-btn {
             background: none;
             border: none;
             color: #eb5757;
             font-weight: 800;
-            cursor: pointer;
             font-size: 1.1rem;
             padding: 0 4px;
-            flex-shrink: 0;
+            cursor: pointer;
         }
 
+        /* 📱 1. OVERHAULED MAX SPACE ADD CONTAINER */
         .add-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             background: #ffffff;
             border: 1px solid var(--border-color);
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
         }
-
-        .add-panel {
-            display: flex;
-            gap: 6px;
+        
+        /* Input takes maximum space on row one */
+        .add-input-row {
+            width: 100%;
         }
-
         .add-input {
-            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 6px 8px;
+            padding: 10px;
             font-family: 'Inter', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             outline: none;
             color: var(--text-main);
-            min-width: 0;
+            background: #ffffff;
+        }
+        
+        /* Functional trigger configurations shift neatly onto row two */
+        .add-controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .add-btn-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        
+        .weight-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            height: 32px;
+            padding: 0 12px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .weight-toggle-btn.heavy {
+            background: #fff7ed;
+            border-color: #ffedd5;
         }
 
         .add-btn {
@@ -262,180 +354,99 @@
             color: #ffffff;
             border: none;
             border-radius: 6px;
-            padding: 0 12px;
+            height: 32px;
+            padding: 0 16px;
             font-weight: 600;
             font-size: 0.8rem;
             cursor: pointer;
         }
 
-        .week-selector {
-            display: flex;
-            justify-content: space-between;
-            gap: 2px;
-        }
-
-        .day-checkbox-label {
-            flex: 1;
-            text-align: center;
-        }
-
-        .day-checkbox-label input {
-            display: none;
-        }
-
+        .week-selector { display: flex; justify-content: space-between; width: 100%; gap: 2px; }
+        .day-checkbox-label { flex: 1; text-align: center; }
+        .day-checkbox-label input { display: none; }
         .day-box {
-            display: block;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 5px 0;
-            border-radius: 4px;
-            user-select: none;
+            display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-sub);
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 5px 0; border-radius: 4px; user-select: none;
         }
-
         .day-checkbox-label input:checked + .day-box {
-            background-color: var(--text-main);
-            color: #ffffff;
-            border-color: var(--text-main);
+            background-color: var(--text-main); color: #ffffff; border-color: var(--text-main);
         }
 
-        /* 📊 ANALYTICS COMPACT STYLING */
-        .chart-wrapper {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 14px;
+        /* Analytics Layouts */
+        .chart-wrapper { background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+        .chart-title { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 12px; }
+        .bar-chart-container { display: flex; justify-content: space-between; align-items: flex-end; height: 90px; }
+        .chart-column { display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .bar-vertical-track { background: var(--progress-empty); width: 10px; height: 65px; border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
+        .bar-vertical-fill { background: var(--progress-filled); width: 100%; height: 0%; border-radius: 6px; transition: height 0.4s ease; }
+        .bar-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); margin-top: 4px; }
+
+        .monthly-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; }
+        .monthly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+        .metric-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; text-align: center; }
+        .metric-val { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+        .metric-title { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+        .full-width-metric { grid-column: span 2; text-align: left; }
+        .mood-item { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
+        
+        .empty-state { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin: 15px 0; font-style: italic; }
+
+        /* Animations */
+        .count-saiyan { animation: textFlame 1.2s infinite alternate ease-in-out; }
+        @keyframes textFlame {
+            0% { text-shadow: 0 0 10px #ffcc00, 0 -2px 15px #ff8800, 0 -4px 25px #ff3300; }
+            100% { text-shadow: 0 0 14px #ffcc00, 0 -4px 22px #ffaa00, 0 -8px 35px #ff5500; transform: scale(1.02); }
         }
 
-        .chart-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+        .count-royal { animation: royalShimmer 2s infinite ease-in-out; }
+        @keyframes royalShimmer {
+            0%, 100% { text-shadow: 0 0 8px #e0aaff, 0 0 20px #7b2cbf; }
+            50% { text-shadow: 0 0 15px #ffffff, 0 0 30px #9d4edd; transform: translateY(-1px); }
         }
 
-        .bar-chart-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            height: 100px;
-            padding: 0 2px;
+        .count-frozen {
+            color: #64b5f6 !important; 
+            text-shadow: 0 4px 10px rgba(100, 181, 246, 0.6), 0 0 20px #e3f2fd;
+            animation: freezeShiver 0.5s ease-in-out;
         }
-
-        .chart-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-        }
-
-        .bar-vertical-track {
-            background: var(--progress-empty);
-            width: 10px;
-            height: 75px;
-            border-radius: 6px;
-            display: flex;
-            align-items: flex-end;
-            overflow: hidden;
-        }
-
-        .bar-vertical-fill {
-            background: var(--progress-filled);
-            width: 100%;
-            height: 0%;
-            border-radius: 6px;
-            transition: height 0.5s ease-out;
-        }
-
-        .bar-label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            margin-top: 6px;
-        }
-
-        .monthly-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 14px;
-        }
-
-        .monthly-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 8px;
-        }
-
-        .metric-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .metric-val {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .metric-title {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        .full-width-metric {
-            grid-column: span 2;
-            text-align: left;
-        }
-
-        .mood-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.72rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text-main);
-        }
-        .mood-item:last-child { margin-bottom: 0; }
-
-        .empty-state {
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            text-align: center;
-            margin: 10px 0;
-            font-style: italic;
+        @keyframes freezeShiver {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 50%, 90% { transform: translate(-2px, 1px); }
+            30%, 70% { transform: translate(2px, -1px); }
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
+    <div class="card" id="main-widget-card">
+        <!-- ☁️ 4. CLOUD LIVE CONSOLE MONITOR HEADS-UP DISPLAY -->
+        <div class="cloud-console-hud">
+            <div class="console-left">
+                <div class="status-dot" id="cloud-status-dot"></div>
+                <span id="cloud-console-text">Checking Cloud Link...</span>
+            </div>
+            <div class="console-timestamp" id="cloud-timestamp">--:--:--</div>
+        </div>
+
         <div class="nav-tabs">
             <button class="tab-btn active" id="tab-combat-btn" onclick="switchTab('combat')">⚔️ Combat</button>
             <button class="tab-btn" id="tab-analytics-btn" onclick="switchTab('analytics')">📊 Analytics</button>
         </div>
 
-        <!-- ⚔️ TAB 1: COMBAT -->
+        <!-- ⚔️ TAB 1: COMBAT AREA -->
         <div id="section-combat" class="view-section active">
+            <div class="rank-banner">
+                <div class="max-streak-badge">👑 Max Streak: <span id="highest-counter">0</span></div>
+                <div class="streak-title">Streak</div>
+                <div class="streak-number" id="global-streak-counter">0</div>
+                <div class="rank-badge" id="global-rank-label">🦥 Lazy Sloth</div>
+            </div>
+
             <div class="day-indicator" id="current-day-label">Loading timeline...</div>
-            
             <div class="progress-zone">
                 <div class="percentage" id="progress-percent">0%</div>
-                <div class="bar-bg">
-                    <div class="bar-fill" id="progress-bar"></div>
-                </div>
+                <div class="bar-bg"><div class="bar-fill" id="progress-bar"></div></div>
             </div>
 
             <div class="rating-zone">
@@ -454,25 +465,30 @@
 
             <div class="habit-list" id="habit-container"></div>
 
+            <!-- 📱 FIXED SPACE COMPACT INPUT SYSTEM -->
             <div class="add-container">
-                <div class="add-panel">
-                    <input type="text" class="add-input" id="habit-input" placeholder="New routine..." maxlength="18">
-                    <button class="add-btn" onclick="addHabit()">Add</button>
+                <div class="add-input-row">
+                    <input type="text" class="add-input" id="habit-input" placeholder="Type routine name here..." maxlength="30">
                 </div>
-                
-                <div class="week-selector">
-                    <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+                <div class="add-controls-row">
+                    <div class="week-selector">
+                        <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+                    </div>
+                    <div class="add-btn-group">
+                        <button class="weight-toggle-btn" id="weight-toggle-ui" onclick="toggleWeightInput()" title="Set Task Weight">🌱</button>
+                        <button class="add-btn" onclick="addHabit()">Add</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 📊 TAB 2: ANALYTICS -->
+        <!-- 📊 TAB 2: ANALYTICS AREA -->
         <div id="section-analytics" class="view-section">
             <div class="chart-wrapper">
                 <div class="chart-title">Weekly Performance (%)</div>
@@ -490,14 +506,8 @@
             <div class="monthly-card">
                 <div class="chart-title" id="monthly-title-label">Monthly Analytics Overview</div>
                 <div class="monthly-grid">
-                    <div class="metric-box">
-                        <div class="metric-val" id="month-avg-val">0%</div>
-                        <div class="metric-title">Consistency</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-val" id="month-perfect-val">0</div>
-                        <div class="metric-title">Perfect Days</div>
-                    </div>
+                    <div class="metric-box"><div class="metric-val" id="month-avg-val">0%</div><div class="metric-title">Consistency</div></div>
+                    <div class="metric-box"><div class="metric-val" id="month-perfect-val">0</div><div class="metric-title">Perfect Days</div></div>
                     <div class="metric-box full-width-metric">
                         <div class="mood-item"><span>⭐ Ek Number Days:</span><span id="mood-cnt-ek">0</span></div>
                         <div class="mood-item"><span>🔥 Maaza Days:</span><span id="mood-cnt-maaza">0</span></div>
@@ -512,23 +522,191 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
+        const CLOUD_URL = "https://kvdb.io/MNY6wXn7Y9wR8xZ2pA4qB9/sahil_dashboard_data";
+
         const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
         const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         
         const currentDayIndex = new Date().getDay();
         const currentDayName = dayNames[currentDayIndex];
-        
         document.getElementById('current-day-label').innerText = `📅 ${fullDayNames[currentDayIndex]}`;
 
-        let habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
-        let historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
+        let habits = [];
+        let historyLogs = {};
+        let currentStreak = 0;
+        let highestStreak = 0;
+        let lastLoggedDate = "";
+        let lastOpenedDate = localStorage.getItem('dashboard_last_opened_date') || "";
+        let inputIsHeavy = false;
 
+        const streakNumEl = document.getElementById('global-streak-counter');
+        const streakMaxEl = document.getElementById('highest-counter');
+        const rankLabelEl = document.getElementById('global-rank-label');
         const container = document.getElementById('habit-container');
         const percentEl = document.getElementById('progress-percent');
         const barEl = document.getElementById('progress-bar');
         const inputEl = document.getElementById('habit-input');
+        const weightToggleUi = document.getElementById('weight-toggle-ui');
         const ratingSelect = document.getElementById('day-rating-dropdown');
+        
+        const cloudDot = document.getElementById('cloud-status-dot');
+        const cloudText = document.getElementById('cloud-console-text');
+        const cloudTime = document.getElementById('cloud-timestamp');
+        const root = document.documentElement;
+
+        function updateCloudHUD(status, textMessage) {
+            const timeString = new Date().toTimeString().split(' ')[0];
+            cloudTime.innerText = timeString;
+            cloudText.innerText = textMessage;
+            if (status === 'success') {
+                cloudDot.className = "status-dot online";
+            } else {
+                cloudDot.className = "status-dot";
+            }
+        }
+
+        async function fetchFromCloud() {
+            updateCloudHUD('loading', 'Syncing Data...');
+            try {
+                const response = await fetch(CLOUD_URL);
+                if (response.ok) {
+                    const data = await response.json();
+                    habits = data.habits || [];
+                    historyLogs = data.historyLogs || {};
+                    currentStreak = data.currentStreak || 0;
+                    highestStreak = data.highestStreak || 0;
+                    lastLoggedDate = data.lastLoggedDate || "";
+                    
+                    checkAndExecuteMidnightReset();
+                    calculateStreakMetrics(false);
+                    updateCloudHUD('success', 'Connected');
+                } else {
+                    throw new Error();
+                }
+            } catch (err) {
+                habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
+                historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
+                currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
+                highestStreak = parseInt(localStorage.getItem('dashboard_highest_v1')) || 0;
+                lastLoggedDate = localStorage.getItem('dashboard_last_date_v1') || "";
+                
+                checkAndExecuteMidnightReset();
+                calculateStreakMetrics(false);
+                updateCloudHUD('offline', 'Local Offline Mode');
+            }
+            renderHabits();
+        }
+
+        async function pushToCloud() {
+            updateCloudHUD('loading', 'Uploading...');
+            const dataPackage = { habits, historyLogs, currentStreak, highestStreak, lastLoggedDate };
+            
+            localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
+            localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
+            localStorage.setItem('dashboard_streak_v1', currentStreak);
+            localStorage.setItem('dashboard_highest_v1', highestStreak);
+            localStorage.setItem('dashboard_last_date_v1', lastLoggedDate);
+
+            try {
+                const res = await fetch(CLOUD_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(dataPackage),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (res.ok) {
+                    updateCloudHUD('success', 'Saved & Synced');
+                } else {
+                    updateCloudHUD('offline', 'Cloud Save Error');
+                }
+            } catch (err) {
+                updateCloudHUD('offline', 'Sync Delayed');
+            }
+        }
+
+        // 🔄 3. FIXED MIDNIGHT SWEEP MECHANICS (KEEPS THE STRUCTURE, RESETS ONLY COMPLETION STAMP)
+        function checkAndExecuteMidnightReset() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (lastOpenedDate && lastOpenedDate !== todayStr) {
+                // BUGFIX: We only map the checkbox boolean to false. The text arrays remain completely untouched!
+                habits = habits.map(h => ({ ...h, completed: false }));
+                pushToCloud();
+            }
+            lastOpenedDate = todayStr;
+            localStorage.setItem('dashboard_last_opened_date', lastOpenedDate);
+        }
+
+        // 📊 2. OVERHAULED STREAK VALIDATOR (RUNS DYNAMICALLY ON PROGRESS PERCENTAGE >= 50%)
+        function calculateStreakMetrics(isFreezeTriggerAllowed) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let wasResetTriggered = false;
+
+            // 1. Calculate the standard target rules
+            if (lastLoggedDate) {
+                const todayObj = new Date(todayStr);
+                const lastLogObj = new Date(lastLoggedDate);
+                const diffTime = Math.abs(todayObj - lastLogObj);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 1 && lastLoggedDate !== todayStr) {
+                    currentStreak = 0;
+                    wasResetTriggered = true;
+                }
+            }
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+            }
+
+            streakMaxEl.innerText = highestStreak;
+            streakNumEl.className = "streak-number";
+
+            if (wasResetTriggered && isFreezeTriggerAllowed) {
+                streakNumEl.className = "streak-number count-frozen";
+            }
+
+            streakNumEl.innerText = currentStreak;
+
+            let rankText = "🦥 Lazy Sloth";
+            
+            if (currentStreak >= 365) {
+                root.style.setProperty('--accent-color', '#1a002c'); 
+                root.style.setProperty('--glow-color', 'rgba(26, 0, 44, 0.15)');
+                rankText = "🌌 destroyer of world 🔥";
+            } else if (currentStreak >= 200) {
+                root.style.setProperty('--accent-color', '#411d73'); 
+                root.style.setProperty('--glow-color', 'rgba(65, 29, 115, 0.15)');
+                rankText = "👑 Immortal King";
+                streakNumEl.classList.add('count-royal');
+            } else if (currentStreak >= 100) {
+                root.style.setProperty('--accent-color', '#9e0018'); 
+                root.style.setProperty('--glow-color', 'rgba(158, 0, 24, 0.15)');
+                rankText = "🗡️💥 Berserker";
+            } else if (currentStreak >= 50) {
+                root.style.setProperty('--accent-color', '#cc9a06'); 
+                root.style.setProperty('--glow-color', 'rgba(204, 154, 6, 0.15)');
+                rankText = "🌀⚡ Super Saiyan level";
+                streakNumEl.classList.add('count-saiyan');
+            } else if (currentStreak >= 21) {
+                root.style.setProperty('--accent-color', '#1b4332'); 
+                root.style.setProperty('--glow-color', 'rgba(27, 67, 50, 0.12)');
+                rankText = "🏆 Champion";
+            } else if (currentStreak >= 7) {
+                root.style.setProperty('--accent-color', '#023e8a'); 
+                root.style.setProperty('--glow-color', 'rgba(2, 62, 138, 0.12)');
+                rankText = "⚔️ Challenger";
+            } else if (currentStreak >= 1) {
+                root.style.setProperty('--accent-color', '#2a9d8f'); 
+                root.style.setProperty('--glow-color', 'rgba(42, 157, 143, 0.12)');
+                rankText = "🗺️ Explorer";
+            } else {
+                root.style.setProperty('--accent-color', '#787774'); 
+                root.style.setProperty('--glow-color', 'rgba(120, 119, 116, 0.08)');
+                rankText = "🦥 Lazy Sloth";
+            }
+
+            rankLabelEl.innerText = rankText;
+        }
 
         function switchTab(targetTab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -545,9 +723,28 @@
             }
         }
 
-        function saveAndRender() {
-            localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
-            renderHabits();
+        function toggleWeightInput() {
+            inputIsHeavy = !inputIsHeavy;
+            if (inputIsHeavy) {
+                weightToggleUi.innerText = "⭐";
+                weightToggleUi.classList.add('heavy');
+            } else {
+                weightToggleUi.innerText = "🌱";
+                weightToggleUi.classList.remove('heavy');
+            }
+        }
+
+        // Helper function to figure out current completion percentage math instantly
+        function getLiveCalculationScore() {
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+            if (todaysHabits.length === 0) return 100;
+            let maxPoints = 0, earnedPoints = 0;
+            todaysHabits.forEach(h => {
+                const w = h.isHeavy ? 2 : 1;
+                maxPoints += w;
+                if (h.completed) earnedPoints += w;
+            });
+            return Math.round((earnedPoints / maxPoints) * 100);
         }
 
         function renderHabits() {
@@ -561,17 +758,17 @@
                 return;
             }
 
-            let completedCount = 0;
             todaysHabits.forEach(habit => {
-                if (habit.completed) completedCount++;
-
                 const item = document.createElement('div');
                 item.className = 'habit-item';
                 item.innerHTML = `
                     <div class="habit-left" onclick="toggleHabit(${habit.id})">
                         <input type="checkbox" class="habit-checkbox" ${habit.completed ? 'checked' : ''} readonly>
                         <div class="habit-details">
-                            <span class="habit-text ${habit.completed ? 'completed' : ''}">${habit.text}</span>
+                            <div class="habit-text-row">
+                                <span class="habit-text ${habit.completed ? 'completed' : ''}">${habit.text}</span>
+                                ${habit.isHeavy ? '<span class="weight-badge">⭐</span>' : ''}
+                            </div>
                             <span class="habit-days-badge">🗓️ ${habit.days.join(', ')}</span>
                         </div>
                     </div>
@@ -580,18 +777,24 @@
                 container.appendChild(item);
             });
 
-            const finalPercentage = Math.round((completedCount / todaysHabits.length) * 100);
+            const finalPercentage = getLiveCalculationScore();
             percentEl.innerText = `${finalPercentage}%`;
             barEl.style.width = `${finalPercentage}%`;
 
             if (finalPercentage === 100 && todaysHabits.length > 0) {
-                confetti({ particleCount: 20, spread: 20, origin: { y: 0.85 } });
+                confetti({ 
+                    particleCount: 50, 
+                    spread: 40, 
+                    origin: { y: 0.8 },
+                    colors: [getComputedStyle(root).getPropertyValue('--accent-color').trim(), '#ffffff']
+                });
             }
         }
 
         function toggleHabit(id) {
             habits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
-            saveAndRender();
+            renderHabits();
+            pushToCloud();
         }
 
         function addHabit() {
@@ -608,14 +811,25 @@
                 return;
             }
 
-            habits.push({ id: Date.now(), text: text, completed: false, days: checkedDays });
+            habits.push({ 
+                id: Date.now(), 
+                text: text, 
+                completed: false, 
+                days: checkedDays,
+                isHeavy: inputIsHeavy 
+            });
+
             inputEl.value = '';
-            saveAndRender();
+            inputIsHeavy = true; toggleWeightInput(); 
+            
+            renderHabits();
+            pushToCloud();
         }
 
         function deleteHabit(id) {
             habits = habits.filter(h => h.id !== id);
-            saveAndRender();
+            renderHabits();
+            pushToCloud();
         }
 
         function logCurrentDay() {
@@ -625,9 +839,20 @@
             const textStatus = ratingSelect.options[ratingSelect.selectedIndex].text;
             const dayStr = dayNames[todayObj.getDay()];
 
-            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
-            const completedCount = habits.filter(h => h.days.includes(currentDayName) && h.completed).length;
-            const score = todaysHabits.length > 0 ? Math.round((completedCount / todaysHabits.length) * 100) : 100;
+            const score = getLiveCalculationScore();
+
+            // 👑 FIXED STREAK VERIFIER: Evaluates performance math dynamically upon daily logging action
+            if (lastLoggedDate !== todayKey) {
+                if (score >= 50) {
+                    currentStreak++;
+                } else {
+                    currentStreak = 0; // Streak breaks if logged score is under 50%
+                }
+                lastLoggedDate = todayKey;
+            } else {
+                // If rewriting an entry for today, adjust streak boundaries cleanly
+                if (score < 50 && currentStreak > 0) currentStreak = 0;
+            }
 
             historyLogs[todayKey] = {
                 status: selectedStatus,
@@ -636,12 +861,13 @@
                 dayLabel: dayStr
             };
 
-            localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
+            calculateStreakMetrics(true);
             
             confetti({ particleCount: 30, angle: 60, spread: 45, origin: { x: 0 } });
             confetti({ particleCount: 30, angle: 120, spread: 45, origin: { x: 1 } });
             
-            alert(`Logged: "${textStatus}"`);
+            alert(`Logged: "${textStatus}"! Current Performance: ${score}%`);
+            pushToCloud();
         }
 
         function renderAnalytics() {
@@ -702,7 +928,7 @@
             if (e.key === 'Enter') addHabit();
         });
 
-        renderHabits();
+        fetchFromCloud();
     </script>
 </body>
 </html>
