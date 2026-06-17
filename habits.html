@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Ultimate Fixed Edition</title>
+    <title>Habit Matrix - Fixed Cloud Sync</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -44,7 +44,6 @@
             box-sizing: border-box;
         }
 
-        /* Live Status Terminal Indicator */
         .cloud-console-hud {
             display: flex;
             align-items: center;
@@ -290,7 +289,6 @@
             cursor: pointer;
         }
 
-        /* 📱 1. OVERHAULED MAX SPACE ADD CONTAINER */
         .add-container {
             display: flex;
             flex-direction: column;
@@ -301,10 +299,7 @@
             border-radius: 12px;
         }
         
-        /* Input takes maximum space on row one */
-        .add-input-row {
-            width: 100%;
-        }
+        .add-input-row { width: 100%; }
         .add-input {
             width: 100%;
             box-sizing: border-box;
@@ -318,18 +313,13 @@
             background: #ffffff;
         }
         
-        /* Functional trigger configurations shift neatly onto row two */
         .add-controls-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
         }
-        .add-btn-group {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
+        .add-btn-group { display: flex; gap: 6px; align-items: center; }
         
         .weight-toggle-btn {
             background: var(--card-bg);
@@ -420,11 +410,10 @@
 <body>
 
     <div class="card" id="main-widget-card">
-        <!-- ☁️ 4. CLOUD LIVE CONSOLE MONITOR HEADS-UP DISPLAY -->
         <div class="cloud-console-hud">
             <div class="console-left">
                 <div class="status-dot" id="cloud-status-dot"></div>
-                <span id="cloud-console-text">Checking Cloud Link...</span>
+                <span id="cloud-console-text">Syncing...</span>
             </div>
             <div class="console-timestamp" id="cloud-timestamp">--:--:--</div>
         </div>
@@ -434,7 +423,6 @@
             <button class="tab-btn" id="tab-analytics-btn" onclick="switchTab('analytics')">📊 Analytics</button>
         </div>
 
-        <!-- ⚔️ TAB 1: COMBAT AREA -->
         <div id="section-combat" class="view-section active">
             <div class="rank-banner">
                 <div class="max-streak-badge">👑 Max Streak: <span id="highest-counter">0</span></div>
@@ -465,7 +453,6 @@
 
             <div class="habit-list" id="habit-container"></div>
 
-            <!-- 📱 FIXED SPACE COMPACT INPUT SYSTEM -->
             <div class="add-container">
                 <div class="add-input-row">
                     <input type="text" class="add-input" id="habit-input" placeholder="Type routine name here..." maxlength="30">
@@ -488,7 +475,6 @@
             </div>
         </div>
 
-        <!-- 📊 TAB 2: ANALYTICS AREA -->
         <div id="section-analytics" class="view-section">
             <div class="chart-wrapper">
                 <div class="chart-title">Weekly Performance (%)</div>
@@ -522,7 +508,8 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        const CLOUD_URL = "https://kvdb.io/MNY6wXn7Y9wR8xZ2pA4qB9/sahil_dashboard_data";
+        // ☁️ RE-ENGINEERED ANONYMOUS OPEN-CORS CLOUD STACK KEY-VALUE BIN
+        const CLOUD_URL = "https://api.restfulapi.dev/objects/ff8081819036c6bc0190538a2e584ebd";
 
         const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
         const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -556,8 +543,7 @@
         const root = document.documentElement;
 
         function updateCloudHUD(status, textMessage) {
-            const timeString = new Date().toTimeString().split(' ')[0];
-            cloudTime.innerText = timeString;
+            cloudTime.innerText = new Date().toTimeString().split(' ')[0];
             cloudText.innerText = textMessage;
             if (status === 'success') {
                 cloudDot.className = "status-dot online";
@@ -567,17 +553,19 @@
         }
 
         async function fetchFromCloud() {
-            updateCloudHUD('loading', 'Syncing Data...');
+            updateCloudHUD('loading', 'Syncing...');
             try {
                 const response = await fetch(CLOUD_URL);
                 if (response.ok) {
-                    const data = await response.json();
-                    habits = data.habits || [];
-                    historyLogs = data.historyLogs || {};
-                    currentStreak = data.currentStreak || 0;
-                    highestStreak = data.highestStreak || 0;
-                    lastLoggedDate = data.lastLoggedDate || "";
-                    
+                    const packet = await response.json();
+                    if (packet && packet.data) {
+                        const payload = packet.data;
+                        habits = payload.habits || [];
+                        historyLogs = payload.historyLogs || {};
+                        currentStreak = payload.currentStreak || 0;
+                        highestStreak = payload.highestStreak || 0;
+                        lastLoggedDate = payload.lastLoggedDate || "";
+                    }
                     checkAndExecuteMidnightReset();
                     calculateStreakMetrics(false);
                     updateCloudHUD('success', 'Connected');
@@ -585,6 +573,7 @@
                     throw new Error();
                 }
             } catch (err) {
+                // Fallback to offline mirror store
                 habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
                 historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
                 currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
@@ -593,14 +582,14 @@
                 
                 checkAndExecuteMidnightReset();
                 calculateStreakMetrics(false);
-                updateCloudHUD('offline', 'Local Offline Mode');
+                updateCloudHUD('offline', 'Local Memory Mode');
             }
             renderHabits();
         }
 
         async function pushToCloud() {
-            updateCloudHUD('loading', 'Uploading...');
-            const dataPackage = { habits, historyLogs, currentStreak, highestStreak, lastLoggedDate };
+            updateCloudHUD('loading', 'Saving...');
+            const dataPayload = { habits, historyLogs, currentStreak, highestStreak, lastLoggedDate };
             
             localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
             localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
@@ -610,25 +599,24 @@
 
             try {
                 const res = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(dataPackage),
+                    method: 'PUT',
+                    body: JSON.stringify({ name: "Sahil Habit Hub", data: dataPayload }),
                     headers: { 'Content-Type': 'application/json' }
                 });
                 if (res.ok) {
                     updateCloudHUD('success', 'Saved & Synced');
                 } else {
-                    updateCloudHUD('offline', 'Cloud Save Error');
+                    updateCloudHUD('offline', 'Error Syncing');
                 }
             } catch (err) {
-                updateCloudHUD('offline', 'Sync Delayed');
+                updateCloudHUD('offline', 'Sync Retrying...');
             }
         }
 
-        // 🔄 3. FIXED MIDNIGHT SWEEP MECHANICS (KEEPS THE STRUCTURE, RESETS ONLY COMPLETION STAMP)
+        // 🔄 MIDNIGHT UNCHECK MECHANICS: Restores structural items, clears checks back to blank state
         function checkAndExecuteMidnightReset() {
             const todayStr = new Date().toISOString().split('T')[0];
             if (lastOpenedDate && lastOpenedDate !== todayStr) {
-                // BUGFIX: We only map the checkbox boolean to false. The text arrays remain completely untouched!
                 habits = habits.map(h => ({ ...h, completed: false }));
                 pushToCloud();
             }
@@ -636,12 +624,10 @@
             localStorage.setItem('dashboard_last_opened_date', lastOpenedDate);
         }
 
-        // 📊 2. OVERHAULED STREAK VALIDATOR (RUNS DYNAMICALLY ON PROGRESS PERCENTAGE >= 50%)
         function calculateStreakMetrics(isFreezeTriggerAllowed) {
             const todayStr = new Date().toISOString().split('T')[0];
             let wasResetTriggered = false;
 
-            // 1. Calculate the standard target rules
             if (lastLoggedDate) {
                 const todayObj = new Date(todayStr);
                 const lastLogObj = new Date(lastLoggedDate);
@@ -654,9 +640,7 @@
                 }
             }
 
-            if (currentStreak > highestStreak) {
-                highestStreak = currentStreak;
-            }
+            if (currentStreak > highestStreak) highestStreak = currentStreak;
 
             streakMaxEl.innerText = highestStreak;
             streakNumEl.className = "streak-number";
@@ -668,7 +652,6 @@
             streakNumEl.innerText = currentStreak;
 
             let rankText = "🦥 Lazy Sloth";
-            
             if (currentStreak >= 365) {
                 root.style.setProperty('--accent-color', '#1a002c'); 
                 root.style.setProperty('--glow-color', 'rgba(26, 0, 44, 0.15)');
@@ -704,7 +687,6 @@
                 root.style.setProperty('--glow-color', 'rgba(120, 119, 116, 0.08)');
                 rankText = "🦥 Lazy Sloth";
             }
-
             rankLabelEl.innerText = rankText;
         }
 
@@ -734,10 +716,9 @@
             }
         }
 
-        // Helper function to figure out current completion percentage math instantly
         function getLiveCalculationScore() {
             const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
-            if (todaysHabits.length === 0) return 100;
+            if (todaysHabits.length === 0) return 0; // Fix: Rest days evaluate safely to 0 baseline activity points
             let maxPoints = 0, earnedPoints = 0;
             todaysHabits.forEach(h => {
                 const w = h.isHeavy ? 2 : 1;
@@ -753,8 +734,8 @@
 
             if (todaysHabits.length === 0) {
                 container.innerHTML = `<div class="empty-state">🎉 Rest day! No habits scheduled.</div>`;
-                percentEl.innerText = "100%";
-                barEl.style.width = "100%";
+                percentEl.innerText = "0%";
+                barEl.style.width = "0%";
                 return;
             }
 
@@ -840,18 +821,23 @@
             const dayStr = dayNames[todayObj.getDay()];
 
             const score = getLiveCalculationScore();
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
 
-            // 👑 FIXED STREAK VERIFIER: Evaluates performance math dynamically upon daily logging action
-            if (lastLoggedDate !== todayKey) {
-                if (score >= 50) {
-                    currentStreak++;
+            // 🎚️ FIX: Streak calculations only tick up if today actually has tasks scheduled
+            if (todaysHabits.length > 0) {
+                if (lastLoggedDate !== todayKey) {
+                    if (score >= 50) {
+                        currentStreak++;
+                    } else {
+                        currentStreak = 0;
+                    }
+                    lastLoggedDate = todayKey;
                 } else {
-                    currentStreak = 0; // Streak breaks if logged score is under 50%
+                    if (score < 50 && currentStreak > 0) currentStreak = 0;
                 }
-                lastLoggedDate = todayKey;
             } else {
-                // If rewriting an entry for today, adjust streak boundaries cleanly
-                if (score < 50 && currentStreak > 0) currentStreak = 0;
+                alert("Empty rest days cannot adjust active running streaks!");
+                return;
             }
 
             historyLogs[todayKey] = {
@@ -866,7 +852,7 @@
             confetti({ particleCount: 30, angle: 60, spread: 45, origin: { x: 0 } });
             confetti({ particleCount: 30, angle: 120, spread: 45, origin: { x: 1 } });
             
-            alert(`Logged: "${textStatus}"! Current Performance: ${score}%`);
+            alert(`Logged: "${textStatus}"! Today's score: ${score}%`);
             pushToCloud();
         }
 
