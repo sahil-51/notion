@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Fixed Cloud Sync</title>
+    <title>Habit Matrix - Production Edition</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -66,12 +66,8 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background: #eb5757;
-            border-radius: 50%;
-            transition: background 0.3s;
-        }
-        .status-dot.online {
             background: #2a9d8f;
+            border-radius: 50%;
             box-shadow: 0 0 8px rgba(42, 157, 143, 0.5);
         }
         .console-timestamp {
@@ -412,8 +408,8 @@
     <div class="card" id="main-widget-card">
         <div class="cloud-console-hud">
             <div class="console-left">
-                <div class="status-dot" id="cloud-status-dot"></div>
-                <span id="cloud-console-text">Syncing...</span>
+                <div class="status-dot"></div>
+                <span id="cloud-console-text">Local Storage Engine</span>
             </div>
             <div class="console-timestamp" id="cloud-timestamp">--:--:--</div>
         </div>
@@ -508,9 +504,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        // 🔒 High-availability JSONBin Box Routing
-        const CLOUD_URL = "https://api.jsonbin.io/v3/b/6671cfdaacd3ab13569c73bc";
-
         const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
         const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -537,87 +530,40 @@
         const weightToggleUi = document.getElementById('weight-toggle-ui');
         const ratingSelect = document.getElementById('day-rating-dropdown');
         
-        const cloudDot = document.getElementById('cloud-status-dot');
-        const cloudText = document.getElementById('cloud-console-text');
         const cloudTime = document.getElementById('cloud-timestamp');
         const root = document.documentElement;
 
-        function updateCloudHUD(status, textMessage) {
+        function refreshTimestamp() {
             cloudTime.innerText = new Date().toTimeString().split(' ')[0];
-            cloudText.innerText = textMessage;
-            if (status === 'success') {
-                cloudDot.className = "status-dot online";
-            } else {
-                cloudDot.className = "status-dot";
-            }
         }
 
-        async function fetchFromCloud() {
-            updateCloudHUD('loading', 'Syncing...');
-            try {
-                // Fetch using universal public box reading headers
-                const response = await fetch(CLOUD_URL, {
-                    headers: { 'X-Bin-Meta': 'false' }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    habits = data.habits || [];
-                    historyLogs = data.historyLogs || {};
-                    currentStreak = data.currentStreak || 0;
-                    highestStreak = data.highestStreak || 0;
-                    lastLoggedDate = data.lastLoggedDate || "";
-                    
-                    checkAndExecuteMidnightReset();
-                    calculateStreakMetrics(false);
-                    updateCloudHUD('success', 'Saved & Synced');
-                } else {
-                    throw new Error();
-                }
-            } catch (err) {
-                habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
-                historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
-                currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
-                highestStreak = parseInt(localStorage.getItem('dashboard_highest_v1')) || 0;
-                lastLoggedDate = localStorage.getItem('dashboard_last_date_v1') || "";
-                
-                checkAndExecuteMidnightReset();
-                calculateStreakMetrics(false);
-                updateCloudHUD('offline', 'Local Memory Mode');
-            }
+        function loadLocalData() {
+            habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
+            historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
+            currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
+            highestStreak = parseInt(localStorage.getItem('dashboard_highest_v1')) || 0;
+            lastLoggedDate = localStorage.getItem('dashboard_last_date_v1') || "";
+            
+            checkAndExecuteMidnightReset();
+            calculateStreakMetrics(false);
+            refreshTimestamp();
             renderHabits();
         }
 
-        async function pushToCloud() {
-            updateCloudHUD('loading', 'Saving...');
-            const dataPayload = { habits, historyLogs, currentStreak, highestStreak, lastLoggedDate };
-            
+        function saveLocalData() {
             localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
             localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
             localStorage.setItem('dashboard_streak_v1', currentStreak);
             localStorage.setItem('dashboard_highest_v1', highestStreak);
             localStorage.setItem('dashboard_last_date_v1', lastLoggedDate);
-
-            try {
-                const res = await fetch(CLOUD_URL, {
-                    method: 'PUT',
-                    body: JSON.stringify(dataPayload),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (res.ok) {
-                    updateCloudHUD('success', 'Saved & Synced');
-                } else {
-                    updateCloudHUD('offline', 'Sync Error');
-                }
-            } catch (err) {
-                updateCloudHUD('offline', 'Retrying...');
-            }
+            refreshTimestamp();
         }
 
         function checkAndExecuteMidnightReset() {
             const todayStr = new Date().toISOString().split('T')[0];
             if (lastOpenedDate && lastOpenedDate !== todayStr) {
                 habits = habits.map(h => ({ ...h, completed: false }));
-                pushToCloud();
+                saveLocalData();
             }
             lastOpenedDate = todayStr;
             localStorage.setItem('dashboard_last_opened_date', lastOpenedDate);
@@ -652,4 +598,267 @@
 
             let rankText = "🦥 Lazy Sloth";
             if (currentStreak >= 365) {
-                root.style.setProperty('--accent-color', '#1a002c');
+                root.style.setProperty('--accent-color', '#1a002c'); 
+                root.style.setProperty('--glow-color', 'rgba(26, 0, 44, 0.15)');
+                rankText = "🌌 destroyer of world 🔥";
+            } else if (currentStreak >= 200) {
+                root.style.setProperty('--accent-color', '#411d73'); 
+                root.style.setProperty('--glow-color', 'rgba(65, 29, 115, 0.15)');
+                rankText = "👑 Immortal King";
+                streakNumEl.classList.add('count-royal');
+            } else if (currentStreak >= 100) {
+                root.style.setProperty('--accent-color', '#9e0018'); 
+                root.style.setProperty('--glow-color', 'rgba(158, 0, 24, 0.15)');
+                rankText = "🗡️💥 Berserker";
+            } else if (currentStreak >= 50) {
+                root.style.setProperty('--accent-color', '#cc9a06'); 
+                root.style.setProperty('--glow-color', 'rgba(204, 154, 6, 0.15)');
+                rankText = "🌀⚡ Super Saiyan level";
+                streakNumEl.classList.add('count-saiyan');
+            } else if (currentStreak >= 21) {
+                root.style.setProperty('--accent-color', '#1b4332'); 
+                root.style.setProperty('--glow-color', 'rgba(27, 67, 50, 0.12)');
+                rankText = "🏆 Champion";
+            } else if (currentStreak >= 7) {
+                root.style.setProperty('--accent-color', '#023e8a'); 
+                root.style.setProperty('--glow-color', 'rgba(2, 62, 138, 0.12)');
+                rankText = "⚔️ Challenger";
+            } else if (currentStreak >= 1) {
+                root.style.setProperty('--accent-color', '#2a9d8f'); 
+                root.style.setProperty('--glow-color', 'rgba(42, 157, 143, 0.12)');
+                rankText = "🗺️ Explorer";
+            } else {
+                root.style.setProperty('--accent-color', '#787774'); 
+                root.style.setProperty('--glow-color', 'rgba(120, 119, 116, 0.08)');
+                rankText = "🦥 Lazy Sloth";
+            }
+            rankLabelEl.innerText = rankText;
+        }
+
+        function switchTab(targetTab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+            if (targetTab === 'combat') {
+                document.getElementById('tab-combat-btn').classList.add('active');
+                document.getElementById('section-combat').classList.add('active');
+                renderHabits();
+            } else {
+                document.getElementById('tab-analytics-btn').classList.add('active');
+                document.getElementById('section-analytics').classList.add('active');
+                renderAnalytics();
+            }
+        }
+
+        function toggleWeightInput() {
+            inputIsHeavy = !inputIsHeavy;
+            if (inputIsHeavy) {
+                weightToggleUi.innerText = "⭐";
+                weightToggleUi.classList.add('heavy');
+            } else {
+                weightToggleUi.innerText = "🌱";
+                weightToggleUi.classList.remove('heavy');
+            }
+        }
+
+        function getLiveCalculationScore() {
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+            if (todaysHabits.length === 0) return 0; 
+            let maxPoints = 0, earnedPoints = 0;
+            todaysHabits.forEach(h => {
+                const w = h.isHeavy ? 2 : 1;
+                maxPoints += w;
+                if (h.completed) earnedPoints += w;
+            });
+            return Math.round((earnedPoints / maxPoints) * 100);
+        }
+
+        function renderHabits() {
+            container.innerHTML = '';
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+
+            if (todaysHabits.length === 0) {
+                container.innerHTML = `<div class="empty-state">🎉 Rest day! No habits scheduled.</div>`;
+                percentEl.innerText = "0%";
+                barEl.style.width = "0%";
+                return;
+            }
+
+            todaysHabits.forEach(habit => {
+                const item = document.createElement('div');
+                item.className = 'habit-item';
+                item.innerHTML = `
+                    <div class="habit-left" onclick="toggleHabit(${habit.id})">
+                        <input type="checkbox" class="habit-checkbox" ${habit.completed ? 'checked' : ''} readonly>
+                        <div class="habit-details">
+                            <div class="habit-text-row">
+                                <span class="habit-text ${habit.completed ? 'completed' : ''}">${habit.text}</span>
+                                ${habit.isHeavy ? '<span class="weight-badge">⭐</span>' : ''}
+                            </div>
+                            <span class="habit-days-badge">🗓️ ${habit.days.join(', ')}</span>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteHabit(${habit.id})">×</button>
+                `;
+                container.appendChild(item);
+            });
+
+            const finalPercentage = getLiveCalculationScore();
+            percentEl.innerText = `${finalPercentage}%`;
+            barEl.style.width = `${finalPercentage}%`;
+
+            if (finalPercentage === 100 && todaysHabits.length > 0) {
+                confetti({ 
+                    particleCount: 50, 
+                    spread: 40, 
+                    origin: { y: 0.8 },
+                    colors: [getComputedStyle(root).getPropertyValue('--accent-color').trim(), '#ffffff']
+                });
+            }
+        }
+
+        function toggleHabit(id) {
+            habits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
+            renderHabits();
+            saveLocalData();
+        }
+
+        function addHabit() {
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            const checkedDays = [];
+            document.querySelectorAll('.week-selector input').forEach(box => {
+                if (box.checked) checkedDays.push(box.value);
+            });
+
+            if (checkedDays.length === 0) {
+                alert("Select at least one day!");
+                return;
+            }
+
+            habits.push({ 
+                id: Date.now(), 
+                text: text, 
+                completed: false, 
+                days: checkedDays,
+                isHeavy: inputIsHeavy 
+            });
+
+            inputEl.value = '';
+            inputIsHeavy = true; toggleWeightInput(); 
+            
+            renderHabits();
+            saveLocalData();
+        }
+
+        function deleteHabit(id) {
+            habits = habits.filter(h => h.id !== id);
+            renderHabits();
+            saveLocalData();
+        }
+
+        function logCurrentDay() {
+            const todayObj = new Date();
+            const todayKey = todayObj.toISOString().split('T')[0];
+            const selectedStatus = ratingSelect.value;
+            const textStatus = ratingSelect.options[ratingSelect.selectedIndex].text;
+            const dayStr = dayNames[todayObj.getDay()];
+
+            const score = getLiveCalculationScore();
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+
+            if (todaysHabits.length > 0) {
+                if (lastLoggedDate !== todayKey) {
+                    if (score >= 50) {
+                        currentStreak++;
+                    } else {
+                        currentStreak = 0;
+                    }
+                    lastLoggedDate = todayKey;
+                } else {
+                    if (score < 50 && currentStreak > 0) currentStreak = 0;
+                }
+            } else {
+                alert("Empty rest days cannot adjust active running streaks!");
+                return;
+            }
+
+            historyLogs[todayKey] = {
+                status: selectedStatus,
+                statusLabel: textStatus,
+                completionScore: score,
+                dayLabel: dayStr
+            };
+
+            calculateStreakMetrics(true);
+            
+            confetti({ particleCount: 30, angle: 60, spread: 45, origin: { x: 0 } });
+            confetti({ particleCount: 30, angle: 120, spread: 45, origin: { x: 1 } });
+            
+            alert(`Logged: "${textStatus}"! Today's score: ${score}%`);
+            saveLocalData();
+        }
+
+        function renderAnalytics() {
+            dayNames.forEach(day => {
+                document.getElementById(`bar-${day}`).style.height = "0%";
+            });
+
+            const currentYearMonth = new Date().toISOString().substring(0, 7);
+            document.getElementById('monthly-title-label').innerText = `🗓️ ${monthNames[new Date().getMonth()]} Analytics`;
+
+            const sortedLogKeys = Object.keys(historyLogs).sort().reverse();
+
+            let currentMonthTotalScore = 0;
+            let currentMonthLogCount = 0;
+            let perfectDaysCount = 0;
+            let moodCounters = { ek: 0, maaza: 0, thik: 0, bad: 0 };
+
+            if (sortedLogKeys.length === 0) {
+                updateMonthlyDOM(0, 0, moodCounters);
+                return;
+            }
+
+            sortedLogKeys.forEach((key) => {
+                const item = historyLogs[key];
+                
+                if (item.dayLabel) {
+                    const barFillEl = document.getElementById(`bar-${item.dayLabel}`);
+                    if (barFillEl) barFillEl.style.height = `${item.completionScore}%`;
+                }
+
+                if (key.startsWith(currentYearMonth)) {
+                    currentMonthLogCount++;
+                    currentMonthTotalScore += item.completionScore;
+                    
+                    if (item.completionScore === 100) perfectDaysCount++;
+
+                    if (item.status === 'ek-number') moodCounters.ek++;
+                    else if (item.status === 'maaza') moodCounters.maaza++;
+                    else if (item.status === 'thik') moodCounters.thik++;
+                    else if (item.status === 'kharab' || item.status === 'bhul-jana') moodCounters.bad++;
+                }
+            });
+
+            const finalMonthAvg = currentMonthLogCount > 0 ? Math.round(currentMonthTotalScore / currentMonthLogCount) : 0;
+            updateMonthlyDOM(finalMonthAvg, perfectDaysCount, moodCounters);
+        }
+
+        function updateMonthlyDOM(avg, perfects, moods) {
+            document.getElementById('month-avg-val').innerText = `${avg}%`;
+            document.getElementById('month-perfect-val').innerText = perfects;
+            document.getElementById('mood-cnt-ek').innerText = moods.ek;
+            document.getElementById('mood-cnt-maaza').innerText = moods.maaza;
+            document.getElementById('mood-cnt-thik').innerText = moods.thik;
+            document.getElementById('mood-cnt-bad').innerText = moods.bad;
+        }
+
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addHabit();
+        });
+
+        loadLocalData();
+    </script>
+</body>
+</html>
