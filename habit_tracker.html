@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Habit Matrix - Advanced Cloud Edition</title>
+    <title>Habit Matrix - Fixed App Edition</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     
     <style>
@@ -16,7 +16,7 @@
             --accent-color: #4a5568; 
             --progress-empty: #e9e9e6;
             --progress-filled: #2a9d8f;
-            --glow-color: rgba(74, 85, 104, 0.1);
+            --glow-color: rgba(74, 85, 104, 0.04);
         }
 
         body {
@@ -38,11 +38,42 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 16px;
-            box-shadow: 0 4px 20px rgba(74, 85, 104, 0.03);
+            box-shadow: 0 4px 20px var(--glow-color);
             width: 100%;
             max-width: 340px;
             box-sizing: border-box;
-            transition: all 0.5s ease;
+        }
+
+        .cloud-console-hud {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f1f1ef;
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .console-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #2a9d8f;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(42, 157, 143, 0.5);
+        }
+        .console-timestamp {
+            font-size: 0.62rem;
+            font-family: monospace;
+            color: var(--text-sub);
         }
 
         .nav-tabs {
@@ -80,8 +111,7 @@
             padding: 12px;
             margin-bottom: 12px;
             text-align: center;
-            box-shadow: 0 4px 15px var(--glow-color);
-            transition: all 0.4s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.01);
         }
 
         .max-streak-badge {
@@ -111,7 +141,6 @@
             font-weight: 800;
             color: var(--accent-color);
             margin: 2px 0;
-            transition: all 0.4s ease;
             line-height: 1.1;
         }
 
@@ -122,7 +151,6 @@
             color: var(--accent-color);
             text-transform: uppercase;
             white-space: nowrap;
-            transition: all 0.4s ease;
             margin-top: 4px;
         }
 
@@ -260,26 +288,42 @@
         .add-container {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 10px;
             background: #ffffff;
             border: 1px solid var(--border-color);
-            padding: 8px;
+            padding: 12px;
             border-radius: 12px;
         }
-        .add-panel { display: flex; gap: 6px; }
+        
+        .add-input-row { width: 100%; }
         .add-input {
-            flex: 1; border: 1px solid var(--border-color); border-radius: 6px;
-            padding: 6px; font-family: 'Inter', sans-serif; font-size: 0.8rem;
-            outline: none; color: var(--text-main); min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            color: var(--text-main);
+            background: #ffffff;
         }
         
-        /* Premium Compact Toggle for Weight selection */
+        .add-controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .add-btn-group { display: flex; gap: 6px; align-items: center; }
+        
         .weight-toggle-btn {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-size: 0.8rem;
-            padding: 0 8px;
+            font-size: 0.85rem;
+            height: 32px;
+            padding: 0 12px;
             cursor: pointer;
             user-select: none;
             display: flex;
@@ -292,17 +336,24 @@
         }
 
         .add-btn {
-            background-color: var(--text-main); color: #ffffff; border: none;
-            border-radius: 6px; padding: 0 12px; font-weight: 600; font-size: 0.8rem;
+            background-color: var(--text-main);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            height: 32px;
+            padding: 0 16px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
         }
 
-        .week-selector { display: flex; justify-content: space-between; gap: 2px; }
+        .week-selector { display: flex; justify-content: space-between; width: 100%; gap: 2px; }
         .day-checkbox-label { flex: 1; text-align: center; }
         .day-checkbox-label input { display: none; }
         .day-box {
             display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-sub);
             background: var(--card-bg); border: 1px solid var(--border-color);
-            padding: 4px 0; border-radius: 4px; user-select: none;
+            padding: 5px 0; border-radius: 4px; user-select: none;
         }
         .day-checkbox-label input:checked + .day-box {
             background-color: var(--text-main); color: #ffffff; border-color: var(--text-main);
@@ -320,13 +371,12 @@
         .monthly-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; }
         .monthly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
         .metric-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; text-align: center; }
-        .metric-val { font-size: 1.2rem; font-weight: 800; }
+        .metric-val { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
         .metric-title { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
         .full-width-metric { grid-column: span 2; text-align: left; }
-        .mood-item { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; margin-bottom: 4px; }
+        .mood-item { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
         
         .empty-state { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin: 15px 0; font-style: italic; }
-        .sync-status { font-size: 0.6rem; color: var(--text-sub); text-align: center; margin-top: 8px; }
 
         /* Animations */
         .count-saiyan { animation: textFlame 1.2s infinite alternate ease-in-out; }
@@ -356,12 +406,19 @@
 <body>
 
     <div class="card" id="main-widget-card">
+        <div class="cloud-console-hud">
+            <div class="console-left">
+                <div class="status-dot"></div>
+                <span id="cloud-console-text">App Memory Engine</span>
+            </div>
+            <div class="console-timestamp" id="cloud-timestamp">--:--:--</div>
+        </div>
+
         <div class="nav-tabs">
             <button class="tab-btn active" id="tab-combat-btn" onclick="switchTab('combat')">⚔️ Combat</button>
             <button class="tab-btn" id="tab-analytics-btn" onclick="switchTab('analytics')">📊 Analytics</button>
         </div>
 
-        <!-- ⚔️ TAB 1: COMBAT AREA -->
         <div id="section-combat" class="view-section active">
             <div class="rank-banner">
                 <div class="max-streak-badge">👑 Max Streak: <span id="highest-counter">0</span></div>
@@ -393,25 +450,27 @@
             <div class="habit-list" id="habit-container"></div>
 
             <div class="add-container">
-                <div class="add-panel">
-                    <input type="text" class="add-input" id="habit-input" placeholder="New routine..." maxlength="18">
-                    <!-- Toggle Button to set item weight state -->
-                    <button class="weight-toggle-btn" id="weight-toggle-ui" onclick="toggleWeightInput()" title="Set Task Weight">🌱</button>
-                    <button class="add-btn" onclick="addHabit()">Add</button>
+                <div class="add-input-row">
+                    <input type="text" class="add-input" id="habit-input" placeholder="Type routine name here..." maxlength="30">
                 </div>
-                <div class="week-selector">
-                    <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
-                    <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+                <div class="add-controls-row">
+                    <div class="week-selector">
+                        <label class="day-checkbox-label"><input type="checkbox" value="Su" checked><span class="day-box">Su</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Mo" checked><span class="day-box">Mo</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Tu" checked><span class="day-box">Tu</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="We" checked><span class="day-box">We</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Th" checked><span class="day-box">Th</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Fr" checked><span class="day-box">Fr</span></label>
+                        <label class="day-checkbox-label"><input type="checkbox" value="Sa" checked><span class="day-box">Sa</span></label>
+                    </div>
+                    <div class="add-btn-group">
+                        <button class="weight-toggle-btn" id="weight-toggle-ui" onclick="toggleWeightInput()" title="Set Task Weight">🌱</button>
+                        <button class="add-btn" onclick="addHabit()">Add</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 📊 TAB 2: ANALYTICS AREA -->
         <div id="section-analytics" class="view-section">
             <div class="chart-wrapper">
                 <div class="chart-title">Weekly Performance (%)</div>
@@ -440,15 +499,11 @@
                 </div>
             </div>
         </div>
-
-        <div class="sync-status" id="cloud-sync-label">☁️ Synced to cloud</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        const CLOUD_URL = "https://kvdb.io/MNY6wXn7Y9wR8xZ2pA4qB9/sahil_dashboard_data";
-
         const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
         const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -463,7 +518,7 @@
         let highestStreak = 0;
         let lastLoggedDate = "";
         let lastOpenedDate = localStorage.getItem('dashboard_last_opened_date') || "";
-        let inputIsHeavy = false; // State management for input toggle button weight
+        let inputIsHeavy = false;
 
         const streakNumEl = document.getElementById('global-streak-counter');
         const streakMaxEl = document.getElementById('highest-counter');
@@ -474,104 +529,59 @@
         const inputEl = document.getElementById('habit-input');
         const weightToggleUi = document.getElementById('weight-toggle-ui');
         const ratingSelect = document.getElementById('day-rating-dropdown');
-        const syncLabel = document.getElementById('cloud-sync-label');
+        
+        const cloudTime = document.getElementById('cloud-timestamp');
         const root = document.documentElement;
 
-        async function fetchFromCloud() {
-            syncLabel.innerText = "🔄 Syncing with cloud...";
-            try {
-                const response = await fetch(CLOUD_URL);
-                if (response.ok) {
-                    const data = await response.json();
-                    habits = data.habits || [];
-                    historyLogs = data.historyLogs || {};
-                    currentStreak = data.currentStreak || 0;
-                    highestStreak = data.highestStreak || 0;
-                    lastLoggedDate = data.lastLoggedDate || "";
-                    
-                    checkAndExecuteMidnightReset();
-                    calculateStreakMetrics(false);
-                }
-            } catch (err) {
-                habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
-                historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
-                currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
-                highestStreak = parseInt(localStorage.getItem('dashboard_highest_v1')) || 0;
-                lastLoggedDate = localStorage.getItem('dashboard_last_date_v1') || "";
-                
-                checkAndExecuteMidnightReset();
-                calculateStreakMetrics(false);
-            }
-            syncLabel.innerText = "☁️ Synced to cloud";
+        function refreshTimestamp() {
+            cloudTime.innerText = new Date().toTimeString().split(' ')[0];
+        }
+
+        function loadLocalData() {
+            habits = JSON.parse(localStorage.getItem('dashboard_habits_mobile_v1')) || [];
+            historyLogs = JSON.parse(localStorage.getItem('dashboard_history_v1')) || {};
+            currentStreak = parseInt(localStorage.getItem('dashboard_streak_v1')) || 0;
+            highestStreak = parseInt(localStorage.getItem('dashboard_highest_v1')) || 0;
+            lastLoggedDate = localStorage.getItem('dashboard_last_date_v1') || "";
+            
+            checkAndExecuteMidnightReset();
+            calculateStreakMetrics(false);
+            refreshTimestamp();
             renderHabits();
         }
 
-        async function pushToCloud() {
-            syncLabel.innerText = "⚡ Uploading updates...";
-            const dataPackage = { habits, historyLogs, currentStreak, highestStreak, lastLoggedDate };
-            
+        function saveLocalData() {
             localStorage.setItem('dashboard_habits_mobile_v1', JSON.stringify(habits));
             localStorage.setItem('dashboard_history_v1', JSON.stringify(historyLogs));
             localStorage.setItem('dashboard_streak_v1', currentStreak);
             localStorage.setItem('dashboard_highest_v1', highestStreak);
             localStorage.setItem('dashboard_last_date_v1', lastLoggedDate);
-
-            try {
-                await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(dataPackage),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            } catch (err) {
-                console.error("Cloud lag detected.");
-            }
-            syncLabel.innerText = "☁️ Synced to cloud";
+            refreshTimestamp();
         }
 
-        // 🔄 1. AUTOMATED MIDNIGHT CHECKBOX SWEEP ENGINE
         function checkAndExecuteMidnightReset() {
             const todayStr = new Date().toISOString().split('T')[0];
-            
             if (lastOpenedDate && lastOpenedDate !== todayStr) {
-                // Calendar day has advanced since last access: auto reset checkboxes back to false
                 habits = habits.map(h => ({ ...h, completed: false }));
+                saveLocalData();
             }
-            
             lastOpenedDate = todayStr;
             localStorage.setItem('dashboard_last_opened_date', lastOpenedDate);
         }
 
         function calculateStreakMetrics(isFreezeTriggerAllowed) {
-            const todayStr = new Date().toISOString().split('T')[0];
-            let wasResetTriggered = false;
-
-            if (lastLoggedDate) {
-                const todayObj = new Date(todayStr);
-                const lastLogObj = new Date(lastLoggedDate);
-                const diffTime = Math.abs(todayObj - lastLogObj);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays > 1 && lastLoggedDate !== todayStr) {
-                    currentStreak = 0;
-                    wasResetTriggered = true;
-                }
-            }
-
-            if (currentStreak > highestStreak) {
-                highestStreak = currentStreak;
-            }
+            if (currentStreak > highestStreak) highestStreak = currentStreak;
 
             streakMaxEl.innerText = highestStreak;
             streakNumEl.className = "streak-number";
 
-            if (wasResetTriggered && isFreezeTriggerAllowed) {
+            if (isFreezeTriggerAllowed && currentStreak === 0) {
                 streakNumEl.className = "streak-number count-frozen";
             }
 
             streakNumEl.innerText = currentStreak;
 
             let rankText = "🦥 Lazy Sloth";
-            
             if (currentStreak >= 365) {
                 root.style.setProperty('--accent-color', '#1a002c'); 
                 root.style.setProperty('--glow-color', 'rgba(26, 0, 44, 0.15)');
@@ -607,7 +617,6 @@
                 root.style.setProperty('--glow-color', 'rgba(120, 119, 116, 0.08)');
                 rankText = "🦥 Lazy Sloth";
             }
-
             rankLabelEl.innerText = rankText;
         }
 
@@ -637,25 +646,30 @@
             }
         }
 
+        function getLiveCalculationScore() {
+            const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
+            if (todaysHabits.length === 0) return 0; 
+            let maxPoints = 0, earnedPoints = 0;
+            todaysHabits.forEach(h => {
+                const w = h.isHeavy ? 2 : 1;
+                maxPoints += w;
+                if (h.completed) earnedPoints += w;
+            });
+            return Math.round((earnedPoints / maxPoints) * 100);
+        }
+
         function renderHabits() {
             container.innerHTML = '';
             const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
 
             if (todaysHabits.length === 0) {
                 container.innerHTML = `<div class="empty-state">🎉 Rest day! No habits scheduled.</div>`;
-                percentEl.innerText = "100%";
-                barEl.style.width = "100%";
+                percentEl.innerText = "0%";
+                barEl.style.width = "0%";
                 return;
             }
 
-            let totalPointsPossible = 0;
-            let currentPointsEarned = 0;
-
             todaysHabits.forEach(habit => {
-                const weight = habit.isHeavy ? 2 : 1; // Heavy tasks are worth 2 points, normal are 1
-                totalPointsPossible += weight;
-                if (habit.completed) currentPointsEarned += weight;
-
                 const item = document.createElement('div');
                 item.className = 'habit-item';
                 item.innerHTML = `
@@ -664,7 +678,7 @@
                         <div class="habit-details">
                             <div class="habit-text-row">
                                 <span class="habit-text ${habit.completed ? 'completed' : ''}">${habit.text}</span>
-                                ${habit.isHeavy ? '<span class="weight-badge" title="Heavy Weight">⭐</span>' : ''}
+                                ${habit.isHeavy ? '<span class="weight-badge">⭐</span>' : ''}
                             </div>
                             <span class="habit-days-badge">🗓️ ${habit.days.join(', ')}</span>
                         </div>
@@ -674,8 +688,7 @@
                 container.appendChild(item);
             });
 
-            // 🧮 3. DYNAMIC MATHEMATICAL WEIGHT CALCULATION
-            const finalPercentage = Math.round((currentPointsEarned / totalPointsPossible) * 100);
+            const finalPercentage = getLiveCalculationScore();
             percentEl.innerText = `${finalPercentage}%`;
             barEl.style.width = `${finalPercentage}%`;
 
@@ -692,7 +705,7 @@
         function toggleHabit(id) {
             habits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
             renderHabits();
-            pushToCloud();
+            saveLocalData();
         }
 
         function addHabit() {
@@ -714,21 +727,20 @@
                 text: text, 
                 completed: false, 
                 days: checkedDays,
-                isHeavy: inputIsHeavy // Save custom item weight status
+                isHeavy: inputIsHeavy 
             });
 
             inputEl.value = '';
-            // Reset insertion weight panel toggle back to standard default
             inputIsHeavy = true; toggleWeightInput(); 
             
             renderHabits();
-            pushToCloud();
+            saveLocalData();
         }
 
         function deleteHabit(id) {
             habits = habits.filter(h => h.id !== id);
             renderHabits();
-            pushToCloud();
+            saveLocalData();
         }
 
         function logCurrentDay() {
@@ -738,21 +750,19 @@
             const textStatus = ratingSelect.options[ratingSelect.selectedIndex].text;
             const dayStr = dayNames[todayObj.getDay()];
 
+            const score = getLiveCalculationScore();
             const todaysHabits = habits.filter(h => h.days.includes(currentDayName));
-            let totalPointsPossible = 0;
-            let currentPointsEarned = 0;
 
-            todaysHabits.forEach(habit => {
-                const weight = habit.isHeavy ? 2 : 1;
-                totalPointsPossible += weight;
-                if (habit.completed) currentPointsEarned += weight;
-            });
-
-            const score = totalPointsPossible > 0 ? Math.round((currentPointsEarned / totalPointsPossible) * 100) : 100;
-
-            if (lastLoggedDate !== todayKey) {
-                currentStreak++;
+            if (todaysHabits.length > 0) {
+                if (score >= 50) {
+                    currentStreak++;
+                } else {
+                    currentStreak = 0;
+                }
                 lastLoggedDate = todayKey;
+            } else {
+                alert("Empty rest days cannot adjust active running streaks!");
+                return;
             }
 
             historyLogs[todayKey] = {
@@ -767,8 +777,8 @@
             confetti({ particleCount: 30, angle: 60, spread: 45, origin: { x: 0 } });
             confetti({ particleCount: 30, angle: 120, spread: 45, origin: { x: 1 } });
             
-            alert(`Logged: "${textStatus}"!`);
-            pushToCloud();
+            alert(`Logged: "${textStatus}"! Today's score: ${score}%`);
+            saveLocalData();
         }
 
         function renderAnalytics() {
@@ -829,7 +839,7 @@
             if (e.key === 'Enter') addHabit();
         });
 
-        fetchFromCloud();
+        loadLocalData();
     </script>
 </body>
 </html>
